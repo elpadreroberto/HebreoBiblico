@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hebreo Bíblico – Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Heebo:wght@400;700&family=Noto+Serif+Hebrew:wght@400;700&family=Rubik:wght@400;700&display=swap');
+        
+        body {
+            background-color: #1a1a2e; /* Azul marino profundo */
+            color: #eaeaea;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            transition: background-color 0.5s ease;
+            overflow-x: hidden;
+        }
+
+        /* Ocultar el título con animación */
+        #main-title {
+            transition: all 0.8s ease-in-out;
+            overflow: hidden;
+        }
+        .title-hidden {
+            opacity: 0;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Tipografías Hebreas */
+        .hebrew-classic { font-family: "Frank Ruhl Libre", "Times New Roman", serif; }
+        .hebrew-modern { font-family: "Heebo", "Arial", sans-serif; }
+        .hebrew-serif { font-family: "Noto Serif Hebrew", serif; }
+        .hebrew-bold { font-family: "Rubik", sans-serif; font-weight: 700; }
+
+        /* Tamaños de letra */
+        .size-normal { font-size: 5rem; }
+        .size-large { font-size: 7rem; }
+        @media (min-width: 640px) {
+            .size-normal { font-size: 7rem; }
+            .size-large { font-size: 9rem; }
+        }
+
+        /* Animaciones para las Flashcards */
+        .fade-in { animation: fadeIn 0.3s ease-in forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modo Limpio (Zen) */
+        body.clean-mode #tarjeta,
+        body.clean-mode #modulo-info,
+        body.clean-mode .panel-caja {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+        }
+        body.clean-mode .bg-opciones {
+            background-color: #0f3460 !important; /* Mantiene los botones visibles */
+        }
+
+        /* Estilo para módulo minimizado */
+        .minimized-info {
+            width: auto !important;
+            max-width: 220px !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center p-4 sm:p-6 w-full">
+
+    <h1 id="main-title" class="text-2xl sm:text-3xl font-bold text-center text-white mb-6 mt-2 h-10">Aprendizaje de Hebreo Bíblico</h1>
+
+    <!-- STREAMING_CHUNK:Rendering main header toolbar... -->
+    <header id="main-header" class="w-full max-w-6xl mx-auto mb-6 transition-all duration-500 ease-in-out">
+        
+        <!-- Toolbar principal -->
+        <div class="panel-caja bg-[#16213e] border border-[#2a3a5a] rounded-2xl p-4 shadow-lg flex flex-col gap-4">
+            
+            <!-- Fila Superior: Modos y Niveles -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-[#2a3a5a] pb-4">
+                <!-- Modos de Aprendizaje -->
+                <div class="flex bg-[#0f3460] rounded-xl p-1 w-full sm:w-auto">
+                    <button id="btn-ensenar" class="flex-1 sm:flex-none px-6 py-2 rounded-lg font-bold transition-all bg-[#e94560] text-white shadow-md">Enseñar</button>
+                    <button id="btn-examinar" class="flex-1 sm:flex-none px-6 py-2 rounded-lg font-bold transition-all text-gray-400 hover:text-white">Examinar</button>
+                </div>
+
+                <!-- Selector de Niveles -->
+                <div id="niveles" class="flex flex-wrap justify-center gap-2">
+                    <!-- Botones de nivel se inyectan por JS -->
+                </div>
+            </div>
+
+            <!-- Fila Inferior: Controles Laterales y Subniveles -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 relative">
+                
+                <!-- Controles Izquierdos (Fuentes y Tamaño) -->
+                <div class="flex gap-2 w-full sm:w-auto justify-center sm:justify-start">
+                    <button onclick="toggleFont()" class="bg-[#0f3460] hover:bg-[#1a4b8c] text-white p-2 rounded-xl transition-all" title="Cambiar Tipografía Hebrea">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-8m0 0l4 8m-4-8v12" /></svg>
+                    </button>
+                    <button onclick="toggleSize()" class="bg-[#0f3460] hover:bg-[#1a4b8c] text-white p-2 rounded-xl transition-all" title="Cambiar Tamaño">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                    </button>
+                </div>
+
+                <!-- Subniveles (Partes) y Navegación Estudio Integrada -->
+                <div class="flex flex-col items-center flex-1">
+                    <div class="text-xs text-gray-400 mb-1 uppercase tracking-widest font-bold">Subniveles (Partes)</div>
+                    <div class="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
+                        <!-- Botón Anterior visible en modo Enseñar -->
+                        <button id="btn-prev-inline" class="bg-[#3be8b0] hover:bg-[#2fb88b] text-[#1a1a2e] font-black rounded-lg px-3 py-1 shadow-md transition-all text-xs sm:text-sm flex items-center gap-1" title="Anterior Carta">
+                            <span>◀</span> <span class="hidden sm:inline">Ant</span>
+                        </button>
+                        
+                        <div id="partes" class="flex flex-wrap justify-center gap-1.5">
+                            <!-- Botones de partes se inyectan por JS -->
+                        </div>
+
+                        <!-- Botón Siguiente visible en modo Enseñar -->
+                        <button id="btn-next-inline" class="bg-[#3be8b0] hover:bg-[#2fb88b] text-[#1a1a2e] font-black rounded-lg px-3 py-1 shadow-md transition-all text-xs sm:text-sm flex items-center gap-1" title="Siguiente Carta">
+                            <span class="hidden sm:inline">Sig</span> <span>▶</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Control Derecho (Layout) -->
+                <div class="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
+                    <button onclick="toggleLayout()" class="bg-[#0f3460] hover:bg-[#1a4b8c] text-white px-4 py-2 rounded-xl transition-all flex items-center gap-2 font-medium" title="Cambiar Diseño">
+                        <svg id="icono-layout" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>
+                        <span id="label-layout" class="hidden sm:inline">Centro</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- STREAMING_CHUNK:Rendering main application body grid... -->
+    <div id="contenedor-principal" class="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto items-start transition-all duration-500 ease-in-out">
+        
+        <!-- Zona de Juego -->
+        <main id="juego" class="w-full lg:w-2/3 flex flex-col gap-5 transition-all duration-500 ease-in-out">
+            <div id="tarjeta" class="panel-caja bg-[#16213e] rounded-2xl p-8 shadow-xl flex flex-col items-center text-center min-h-[300px] justify-center relative border border-[#2a3a5a] transition-all">
+                <div id="pregunta" class="text-gray-400 mb-4 font-medium text-sm sm:text-base uppercase tracking-wider"></div>
+                <div id="hebreo" class="text-7xl sm:text-8xl hebrew-classic size-normal leading-tight mb-2 transition-all duration-300" dir="rtl"></div>
+                <div id="detalle" class="mt-4 text-sm sm:text-base text-gray-300 hidden fade-in w-full bg-[#0f3460] bg-opciones p-4 rounded-lg shadow-inner"></div>
+            </div>
+
+            <div id="opciones" class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full"></div>
+
+            <div id="zona-examinar" class="flex flex-col items-center mt-2 w-full">
+                <div id="feedback" class="text-center font-bold text-xl min-h-[1.75rem] mb-4 w-full"></div>
+                
+                <div id="barra" class="panel-caja w-full flex justify-between items-center bg-[#16213e] p-4 rounded-xl border border-[#2a3a5a] transition-all hidden">
+                    <span id="progreso" class="text-gray-400 font-medium text-sm"></span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Módulo de Información Extra (Con control de posición/minimizado) -->
+        <aside id="modulo-info" class="panel-caja w-full lg:w-1/3 bg-[#16213e] rounded-2xl p-6 shadow-xl border border-[#2a3a5a] flex flex-col gap-4 transition-all duration-500">
+            <div class="flex justify-between items-center border-b border-gray-600 pb-2">
+                <h3 id="panel-titulo" class="text-xl font-bold text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-[#f39c12]"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.82 1.508-2.316a7.5 7.5 0 10-7.516 0c.85.496 1.508 1.333 1.508 2.316V18" /></svg>
+                    Datos
+                </h3>
+                <div class="flex items-center gap-1">
+                    <button onclick="toggleInfoPosition()" class="bg-[#0f3460] hover:bg-[#1a4b8c] text-white p-1.5 rounded-lg text-xs font-bold transition-all" title="Mover Panel (Lateral / Abajo)">
+                        ↕ Mover
+                    </button>
+                    <button onclick="toggleInfoMinimize()" id="btn-minimizar" class="bg-[#0f3460] hover:bg-[#1a4b8c] text-white p-1.5 rounded-lg text-xs font-bold transition-all" title="Minimizar / Expandir">
+                        ➖
+                    </button>
+                </div>
+            </div>
+            
+            <div id="contenido-info-modulo" class="flex flex-col gap-4">
+                <div class="bg-[#0f3460] bg-opciones p-4 rounded-xl transition-colors">
+                    <h4 class="text-[#3be8b0] font-semibold text-sm uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        Impacto del Nivel
+                    </h4>
+                    <p id="nivel-motivacion" class="text-sm text-gray-300 leading-relaxed"></p>
+                </div>
+                
+                <div class="bg-[#0f3460] bg-opciones p-4 rounded-xl transition-colors">
+                    <h4 class="text-[#f39c12] font-semibold text-sm uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+                        Frecuencia y Uso
+                    </h4>
+                    <p id="stat-text" class="text-sm text-gray-300 leading-relaxed"></p>
+                </div>
+
+                <div class="bg-[#0f3460] bg-opciones p-4 rounded-xl transition-colors">
+                    <h4 class="text-[#e94560] font-semibold text-sm uppercase tracking-wider mb-1 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                        Dato Curioso Único
+                    </h4>
+                    <p id="trivia-text" class="text-sm text-gray-300 leading-relaxed"></p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- STREAMING_CHUNK:Initializing main script application logic... -->
+    <script>
+        // ESTADO DE LA APLICACIÓN
+        let modo = 'enseñar'; // 'enseñar' o 'examinar'
+        let nivelActual = 1;
+        let parteActual = 1; 
+        let indice = 0;
+        let items = [];
+        let itemsMuestra = []; 
+        let aciertos = 0;
+        let fontStyleIndex = 0; // 0:Clásica, 1:Moderna, 2:Serif, 3:Bold
+        let fontSizeIndex = 0; // 0:Normal, 1:Grande
+        let layoutMode = 0; // 0:Centro, 1:Ancho, 2:Limpio
+        let infoState = 'side'; // 'side', 'bottom', 'minimized'
+
+        // DESAPARECER TÍTULO INICIAL AL CARGAR
+        setTimeout(() => {
+            const title = document.getElementById('main-title');
+            if(title) {
+                title.classList.add('title-hidden');
+            }
+        }, 2500);
+
+        const vocales = [
+            {n:1, he:"בַּ", es:"Pataj", son:"Vocal breve (A)", tr:"pataḥ", heNom:"פַּתַח", tipo:"Vocal breve", uso:"Suena como 'a' en 'casa'.", stat:"Las vocales breves dominan el 35% de los sonidos vocálicos del Tanaj.", cur:"El Pataj furtivo aparece al final de palabras con guturales y se pronuncia antes de la consonante.", imp:"Dominar el Pataj te ayuda a leer correctamente el 35% de las vocales breves en todo el Tanaj."},
+            {n:2, he:"בָּ", es:"Kamatz", son:"Vocal larga (A/O)", tr:"qamats", heNom:"קָמַץ", tipo:"Vocal larga", uso:"Suena 'a' larga, pero en sílabas cerradas átonas suena como 'o'.", stat:"Es la vocal con mayor índice de aparición en la Torá.", cur:"En el hebreo tiberiense primitivo, su sonido original era una 'o' abierta muy pronunciada.", imp:"Al ser la vocal más frecuente en la Torá, desbloquea la lectura fluida de los primeros cinco libros bíblicos."},
+            {n:3, he:"בֶּ", es:"Segol", son:"Vocal breve (E)", tr:"segol", heNom:"סֶגוֹל", tipo:"Vocal breve", uso:"Suena como 'e' en 'perro'.", stat:"Aparece con frecuencia en formas nominales plurales.", cur:"Su nombre proviene de la forma de racimo de uvas ('segol') por sus tres puntos característicos.", imp:"Es clave para reconocer terminaciones de sustantivos plurales y sufijos gramaticales."},
+            {n:4, he:"בֵּ", es:"Tsere", son:"Vocal larga (E)", tr:"tsere", heNom:"צֵירֵי", tipo:"Vocal larga", uso:"Suena como una 'e' prolongada.", stat:"A menudo se escribe acompañada de una consonante mater lectionis Yod.", cur:"Representa una de las vocales puras estables en la morfología de los verbos fuertes.", imp:"Facilita la identificación inmediata de formas verbales y nominales estables."},
+            {n:5, he:"בִּ", es:"Jiriq", son:"Vocal breve (I)", tr:"ḥiriq", heNom:"חִירִיק", tipo:"Vocal breve", uso:"Suena como 'i' en 'máquina'.", stat:"Es fundamental para la formación de sufijos pronominales de primera persona ('mi').", cur:"Si lleva un punto completo y una Yod se le llama Jiriq Malo (pleno).", imp:"Permite identificar sufijos posesivos fundamentales como 'mi' o 'de mí'."},
+            {n:6, he:"בֹּ", es:"Holam", son:"Vocal larga (O)", tr:"ḥolam", heNom:"חוֹלָם", tipo:"Vocal larga", uso:"Suena como 'o' en 'sol'.", stat:"Aparece en más de 12,000 vocablos bíblicos.", cur:"Es la única vocal hebrea cuyo punto se ubica en la parte superior izquierda de la letra.", imp:"Abre el acceso a más de 12,000 vocablos vinculados a nombres propios y sustantivos clave."},
+            {n:7, he:"בּוּ", es:"Shuruq", son:"Vocal larga (U)", tr:"shuruq", heNom:"שׁוּרוּק", tipo:"Vocal larga", uso:"Vav con un punto en medio. Suena 'u'.", stat:"Es una grafía consonántica convertida en vocal plena inalterable.", cur:"A diferencia del Qubutz, el Shuruq no puede modificarse ni reducirse por acentuación.", imp:"Fundamental para no confundir letras Vav con conjunciones y leer vocales estables."},
+            {n:8, he:"בֻּ", es:"Qubutz", son:"Vocal breve (U)", tr:"qubutz", heNom:"קֻבּוּץ", tipo:"Vocal breve", uso:"Tres puntos diagonales. Suena 'u'.", stat:"Representa el timbre corto de la vocal U en sílabas cerradas.", cur:"En inscripciones antiguas del período del Primer Templo, era poco común frente al Shuruq.", imp:"Ayuda a reconocer timbres cortos cerrados en la morfología antigua."},
+            {n:9, he:"בְּ", es:"Shevá", son:"Semivocal (E/Muda)", tr:"sheva", heNom:"שְׁוָא", tipo:"Semivocal / Ausencia", uso:"Al inicio de sílaba suena como 'e' muy breve. Al final es muda.", stat:"Es el signo gráfico más debatido por los gramáticos hebreos antiguos.", cur:"Se divide en Shevá Na (móvil) que se pronuncia y Shevá Naj (mudo) que cierra la sílaba.", imp:"Desbloquea el secreto principal para dividir sílabas y leer sin tropezar en textos complejos."}
+        ];
+
+        const letras = [
+            {n:1, he:"א", es:"Álef", son:"Silencio / Glotal", tr:"alef", heNom:"אָלֶף", tipo:"Consonante gutural", uso:"Toma el sonido de la vocal que la acompaña.", stat:"Consonante más usada en la Biblia (27,059 veces).", cur:"Al ser silenciosa, representa la unidad primordial y encabeza los Diez Mandamientos.", imp:"Al ser la letra más usada (más de 27 mil veces), dominarla es obligatorio para leer cualquier página de la Biblia."},
+            {n:2, he:"ב", es:"Bet", son:"b / v", tr:"bet", heNom:"בֵּית", tipo:"Consonante oclusiva/fricativa", uso:"Con punto (daguesh) suena 'B', sin punto suena 'V'.", stat:"Aparece 38,220 veces (contando la preposición inseparable 'en').", cur:"Es la primera letra con la que inicia formalmente la historia de la Creación en Génesis.", imp:"Al abrir el libro de Génesis, es la primera letra que te recibe; aparece decenas de miles de veces."},
+            {n:3, he:"ג", es:"Guímel", son:"g", tr:"gimel", heNom:"גִּימֶל", tipo:"Consonante oclusiva", uso:"Suena como la 'g' en 'gato'.", stat:"Presente en más de 2,900 vocablos del texto masorético.", cur:"Su nombre ancestral evoca la figura de un camello en marcha.", imp:"Te permite leer raíces asociadas a recompensas y conceptos comunitarios antiguos."},
+            {n:4, he:"ד", es:"Dálet", son:"d", tr:"dalet", heNom:"דָּלֶת", tipo:"Consonante oclusiva", uso:"Suena como la 'd' en 'dado'.", stat:"Letra pilar en la construcción de términos topográficos bíblicos.", cur:"Su forma pictográfica original representaba la puerta de una tienda nómada.", imp:"Esencial para reconocer nombres de lugares y puertas de ciudades bíblicas."},
+            {n:5, he:"ה", es:"He", son:"h", tr:"he", heNom:"הֵא", tipo:"Consonante gutural", uso:"Suena como una 'j' muy suave o 'h' aspirada.", stat:"Funciona como artículo definido ('el/la') al inicio de las palabras.", cur:"Al final de palabra, suele indicar el género femenino o dirección.", imp:"Aprenderla te enseña automáticamente a reconocer el artículo 'el' o 'la' en los textos."},
+            {n:6, he:"ו", es:"Vav", son:"v / o / u", tr:"vav", heNom:"וָו", tipo:"Consonante / Vocal", uso:"Puede ser consonante 'V' o usarse para formar vocales 'O' y 'U'.", stat:"Es la conjunción conectiva 'y' (Vav conversiva), clave absoluta de la narrativa bíblica.", cur:"Es la letra más versátil de todo el alfabeto por su doble función gramatical.", imp:"Abre el entendimiento de la 'Vav conversiva', el motor narrativo de los relatos históricos."},
+            {n:7, he:"ז", es:"Záyin", son:"z", tr:"zayin", heNom:"זַיִן", tipo:"Consonante fricativa", uso:"Suena como la 'z' en inglés (zumbido).", stat:"Aparece menos de 2,300 veces en las Escrituras.", cur:"En antiguos grabados hebreos, su forma se asemejaba a una espada o arma punzante.", imp:"Te ayuda a identificar vocablos bélicos y de herramientas agrícolas."},
+            {n:8, he:"ח", es:"Jet", son:"ḥ gutural", tr:"ḥet", heNom:"חֵית", tipo:"Consonante gutural fuerte", uso:"Suena como la 'j' en 'caja'.", stat:"Raíz constitutiva de conceptos éticos profundos como gracia (jen) y vida (jai).", cur:"Requiere un raspado laríngeo profundo característico de las lenguas semíticas.", imp:"Clave para asimilar conceptos teológicos fundamentales como la gracia y la vida."},
+            {n:9, he:"ט", es:"Tet", son:"t", tr:"tet", heNom:"טֵית", tipo:"Consonante enfática", uso:"Suena como 't'.", stat:"Es la consonante menos frecuente en el inventario del hebreo clásico.", cur:"Aparece en palabras asociadas a lo bueno (tov) de manera primordial.", imp:"Facilita reconocer raíces raras y profundas de bondad y pureza."},
+            {n:10,he:"י", es:"Yod", son:"y / i", tr:"yod", heNom:"יוֹד", tipo:"Consonante / Semivocal", uso:"Suena como 'y' en 'yeso' o ayuda a formar vocales 'i'.", stat:"Aparece 31,532 veces; es la letra más pequeña del alfabeto.", cur:"Jesús la mencionó en el Sermón del Monte al decir que ni una jota pasaría de la Ley.", imp:"Su altísima frecuencia de más de 31 mil apariciones la hace indispensable en cualquier oración."},
+            {n:11,he:"כ", es:"Kaf", son:"k / j", tr:"kaf", heNom:"כַּף", tipo:"Consonante oclusiva/fricativa", uso:"Con punto suena 'K', sin punto suena como 'J' suave.", stat:"Se transforma en 'Kaf sofit' al ubicarse al final de los vocablos.", cur:"Su pictograma original representaba la palma abierta de la mano humana.", imp:"Te conecta directamente con el significado de la mano y el poder de acción."},
+            {n:12,he:"ל", es:"Lámed", son:"l", tr:"lamed", heNom:"לָמֶד", tipo:"Consonante líquida", uso:"Suena como 'l'.", stat:"Es la letra más alta visualmente en el renglón hebreo tradicional.", cur:"Su nombre significa 'enseñar' o 'aprender' en las raíces semíticas.", imp:"Visualmente inconfundible por su altura, aparece en innumerables preposiciones."},
+            {n:13,he:"מ", es:"Mem", son:"m", tr:"mem", heNom:"מֵם", tipo:"Consonante nasal", uso:"Suena como 'm'.", stat:"Posee dos formas gráficas estrictas: abierta al inicio y cerrada al final.", cur:"Su diseño gráfico evoca las ondas y el flujo incesante del agua (mayim).", imp:"Clave para reconocer plurales masculinos (-im) y vocablos acuáticos."},
+            {n:14,he:"נ", es:"Nun", son:"n", tr:"nun", heNom:"נוּן", tipo:"Consonante nasal", uso:"Suena como 'n'.", stat:"Presente en nombres de patriarcas y reyes de la historia sagrada.", cur:"Su forma final (sofit) se extiende verticalmente hacia abajo de la línea base.", imp:"Aparece constantemente en nombres propios y verbos de existencia."},
+            {n:15,he:"ס", es:"Sámek", son:"s", tr:"samekh", heNom:"סָמֶךְ", tipo:"Consonante fricativa", uso:"Suena como 's'.", stat:"Letra completamente cerrada en su diseño cuadrado clásico.", cur:"Simboliza el soporte, el apoyo o el cerco protector divino.", imp:"Facilita la lectura de términos poéticos de amparo y protección."},
+            {n:16,he:"ע", es:"Áyin", son:"ʿ gutural", tr:"ayin", heNom:"עַיִן", tipo:"Consonante gutural", uso:"Oclusiva faríngea profunda tradicional.", stat:"Supera las 20,000 apariciones en el Antiguo Testamento.", cur:"Su significado literal en hebreo es 'ojo', reflejándose en su antiquísimo diseño.", imp:"Esencial para leer más de 20 mil vocablos relacionados con la percepción y el entendimiento."},
+            {n:17,he:"פ", es:"Pe", son:"p / f", tr:"pe", heNom:"פֵּא", tipo:"Consonante oclusiva/fricativa", uso:"Con punto suena 'P', sin punto suena 'F'.", stat:"Cambia su fisonomía a 'Pe sofit' al cerrar una palabra.", cur:"Su trazo tradicional alude a la boca humana y la emisión de la palabra.", imp:"Te introduce en el vocabulario de la expresión oral y la profecía."},
+            {n:18,he:"צ", es:"Tsadi", son:"ts", tr:"tsadi", heNom:"צָדִי", tipo:"Consonante africada", uso:"Suena como 'ts' en 'pizza'.", stat:"Raíz de términos cruciales como justicia (tzedek) y rectitud.", cur:"Su grafía única combina elementos dinámicos que cambian al cerrar el renglón.", imp:"Clave absoluta para descifrar conceptos de justicia y rectitud moral."},
+            {n:19,he:"ק", es:"Qof", son:"q", tr:"qof", heNom:"קוֹף", tipo:"Consonante oclusiva velar", uso:"Suena como 'k' profunda.", stat:"Ocupa un lugar destacado en la terminología sacrificial y sacerdotal.", cur:"Su sonido se produce más atrás en el velo del paladar que la Kaf ordinaria.", imp:"Importante para leer terminología litúrgica y del templo antiguo."},
+            {n:20,he:"ר", es:"Resh", son:"r", tr:"resh", heNom:"רֵישׁ", tipo:"Consonante líquida", uso:"Suena como 'r'.", stat:"Inicia vocablos fundamentales como 'Rosh' (cabeza / principio).", cur:"Su trazo curvado evita ser confundida con la Dalet en rollos antiguos.", imp:"Abre el acceso a palabras relativas a cumbres, jefaturas y principios."},
+            {n:21,he:"ש", es:"Shin", son:"sh / s", tr:"shin", heNom:"שִׁין", tipo:"Consonante fricativa", uso:"Punto a la derecha: 'SH'. Punto a la izquierda (Sin): 'S'.", stat:"Una de las letras más bellas y reverenciadas de la tradición mística.", cur:"Aparece grabada tradicionalmente en las cajitas de los Tefilin.", imp:"Una de las letras más emblemáticas y frecuentes en cánticos y salmos."},
+            {n:22,he:"ת", es:"Tav", son:"t", tr:"tav", heNom:"תָּו", tipo:"Consonante oclusiva", uso:"Suena como 't'.", stat:"Es la última letra del alfabeto hebreo sagrado.", cur:"Simboliza la marca, el sello o la señal definitiva de conclusión.", imp:"Al ser la letra final del alefato, sella la comprensión estructural de todo el hebreo bíblico."}
+        ];
+
+        const sofit = [
+            {n:1, he:"ך", es:"Kaf sofit", son:"k / j final", tr:"kaf sofit", heNom:"כַּף סוֹפִית", tipo:"Forma final", uso:"Forma de la Kaf al final de una palabra.", stat:"Exclusiva para cerrar vocablos que terminan en el sonido K/J.", cur:"Mantiene la abertura superior pero extiende su base hacia abajo.", imp:"Fundamental para identificar el cierre correcto de pronombres posesivos de segunda persona."},
+            {n:2, he:"ם", es:"Mem sofit", son:"m final", tr:"mem sofit", heNom:"מֵם סוֹפִית", tipo:"Forma final", uso:"Forma de la Mem al final de una palabra.", stat:"Su rectángulo perfecto es un sello distintivo en los textos hebreos.", cur:"En la halajá tradicional, es una de las letras que debe mantenerse perfectamente cuadrada.", imp:"Aparece al final de la inmensa mayoría de plurales masculinos y pronombres."},
+            {n:3, he:"ן", es:"Nun sofit", son:"n final", tr:"nun sofit", heNom:"נוּן סוֹפִית", tipo:"Forma final", uso:"Forma de la Nun al final de una palabra.", stat:"Se extiende claramente por debajo de la línea imaginaria de escritura.", cur:"Aporta equilibrio visual al final de los nombres y verbos.", imp:"Clave para reconocer formas verbales terminadas y nombres propios específicos."},
+            {n:4, he:"ף", es:"Pe sofit", son:"p / f final", tr:"pe sofit", heNom:"פֵּא סוֹפִית", tipo:"Forma final", uso:"Forma de la Pe al final de una palabra.", stat:"Su trazo desciende verticalmente rompiendo el flujo normal del renglón.", cur:"Indica inequívocamente la terminación fónica de una palabra con 'f' o 'p'.", imp:"Te avisa de inmediato que una palabra termina con sonido oclusivo o fricativo labial."},
+            {n:5, he:"ץ", es:"Tsadi sofit", son:"ts final", tr:"tsadi sofit", heNom:"צָדִי סוֹפִית", tipo:"Forma final", uso:"Forma de la Tsadi al final de una palabra.", stat:"Su larga colita inferior la hace inconfundible en cualquier manuscrito.", cur:"Cierra términos proféticos y morales de gran peso literario.", imp:"Identifica el cierre exacto de vocablos proféticos sobre justicia y campos."}
+        ];
+
+        const nivel2Data = [
+            {he:"אָב", es:"Padre", son:"av", tr:"av", tipo:"Sustantivo común", uso:"Se usa para designar al progenitor o antepasado directo.", cita:"שִׁמְעִי בְּנִי מוּסַר <span style='color: #3be8b0;'>אָבִ</span>יךָ", citaTr:"shim'i beni musar avikha", citaEs:"Oye, hijo mío, la instrucción de tu padre", stat:"Aparece 1,215 veces en la Biblia hebrea.", cur:"Raíz primordial que expresa origen, autoridad y guía familiar.", imp:"Al dominar este sustantivo, comprendes más de 1,200 referencias patriarcales y genealógicas."},
+            {he:"אָח", es:"Hermano", son:"aj", tr:"ach", tipo:"Sustantivo común", uso:"Designa lazos de sangre o alianza fraterna.", cita:"הִנֵּה מַה־טוֹב וּמַה־נָּעִים שֶׁבֶת <span style='color: #3be8b0;'>אَحִ</span>ים גַּם־יָחַד", citaTr:"hine mah tov umah naim shevet achim gam yachad", citaEs:"Mirad cuán bueno y cuán delicioso es habitar los hermanos juntos", stat:"Aparece 629 veces en el Tanaj.", cur:"Utilizado tanto para hermanos de sangre como para aliados cercanos y compatriotas.", imp:"Esencial para leer relatos de hermandad y alianzas en los libros históricos."},
+            {he:"אִישׁ", es:"Hombre / Varón", son:"ish", tr:"ish", tipo:"Sustantivo común", uso:"Se emplea tanto de manera genérica como para esposos.", cita:"לְזֹאת יִקָּרֵא <span style='color: #3be8b0;'>אִשָּׁה</span> כִּי מֵ<span style='color: #3be8b0;'>אִישׁ</span> לֻקֳחָה־זֹּאת", citaTr:"lezot yikare ishah ki me'ish lukocha zot", citaEs:"Esta será llamada varón, porque del varón fue tomada", stat:"Supera las 2,160 apariciones en las Escrituras.", cur:"Forma pareja fonética y conceptual directa con la palabra 'Isha' (mujer).", imp:"Al aparecer más de 2,100 veces, es un pilar absoluto para identificar sujetos en cualquier versículo."},
+            {he:"אִשָּׁה", es:"Mujer / Esposa", son:"ishah", tr:"ishah", tipo:"Sustantivo común", uso:"Indica género femenino o compañera conyugal.", cita:"וַיִּבֶן ה' אֱלֹהִים אֶת־הַצֵּלָע אֲשֶׁר־לָקַח מִן־הָאָדָם לְ<span style='color: #3be8b0;'>אִשָּׁה</span>", citaTr:"vayiven adonai elohim et hatzela asher lakach min haadam leishah", citaEs:"Y de la costilla que tomó del hombre, hizo una mujer", stat:"Aparece 780 veces en los textos sagrados.", cur:"Comparte la misma raíz lingüística fundamental con 'Ish' (hombre).", imp:"Facilita la comprensión de roles familiares y narrativas conyugales bíblicas."},
+            {he:"בֵּן", es:"Hijo", son:"ben", tr:"ben", tipo:"Sustantivo común", uso:"Empleado para descendientes directos o miembros de un gremio.", cita:"כִּי יֶלֶד יֻלַּד־לָנוּ <span style='color: #3be8b0;'>בֵּן</span> נִתַּן־לָנוּ", citaTr:"ki yeled yulad lanu ben nitan lanu", citaEs:"Porque un niño nos es nacido, hijo nos es dado", stat:"Aparece cerca de 4,900 veces combinado con constructos.", cur:"Es la base para formar patronímicos históricos en todo Medio Oriente.", imp:"Al ser de altísima frecuencia en construcciones de linaje, te abre el acceso a todas las genealogías."},
+            {he:"בַּת", es:"Hija", son:"bat", tr:"bat", tipo:"Sustantivo común", uso:"Designa descendencia femenina o población.", cita:"שְׁמְעִי־<span style='color: #3be8b0;'>בַת</span> וּרְאִי וַהֲטִי אָזְנֵךְ", citaTr:"shemi vat ure'i vahati oznekh", citaEs:"Oye, hija, e mira, e inclina tu oído", stat:"Aparece 500 veces en la literatura bíblica.", cur:"Además de hija literal, se usa metafóricamente para 'habitantes de una ciudad' (Bat Sion).", imp:"Permite entender metáforas poéticas sobre ciudades y comunidades personificadas."},
+            {he:"יוֹם", es:"Día", son:"yom", tr:"yom", tipo:"Sustantivo de tiempo", uso:"Se refiere al periodo de luz diurna o ciclo de 24 horas.", cita:"וַיִּקְרָא אֱלֹהִים לָאוֹר <span style='color: #3be8b0;'>יוֹם</span> וְלַחֹשֶׁךְ קָרָא לָיְלָה", citaTr:"vayikra elohim la'or yom velachoshekh qara laylah", citaEs:"Y llamó Dios a la luz Día, y a las tinieblas llamó Noche", stat:"Aparece 2,304 veces en el Antiguo Testamento.", cur:"Representa tanto el ciclo solar de 24 horas como eras proféticas indeterminadas.", imp:"Desbloquea más de 2,300 referencias cronológicas vitales para la narrativa histórica y profética."},
+            {he:"לַיְלָה", es:"Noche", son:"láylah", tr:"laylah", tipo:"Sustantivo de tiempo", uso:"Periodo de oscuridad y descanso nocturno.", cita:"יוֹם לָיוֹם יַבִּיעַ אֹמֶר וְ<span style='color: #3be8b0;'>לַיְלָה</span> לְלַיְלָה יְחַוֶּה־דָּעַת", citaTr:"yom layom yabi'a omer velaylah lelaylah yechave daat", citaEs:"Un día emite palabra a otro día, y una noche a otra noche declara sabiduría", stat:"Aparece más de 240 veces.", cur:"Gramaticalmente tiene terminación masculina a pesar de su uso femenino común.", imp:"Ideal para comprender los ciclos temporales y narrativas nocturnas en los Salmos."},
+            {he:"מֶלֶךְ", es:"Rey", son:"mélekh", tr:"melekh", tipo:"Sustantivo común", uso:"Monarca, gobernante o máxima autoridad política.", cita:"כִּי הַ<span style='color: #3be8b0;'>מֶּלֶךְ</span> בֹּטֵחַ בַּיהוָה", citaTr:"ki hamelekh boteach adonai", citaEs:"Por cuanto el rey confía en el Señor", stat:"Aparece unas 2,500 veces en los libros históricos y proféticos.", cur:"Término central para entender la teología de la soberanía divina en Israel.", imp:"Te da la llave para leer con soltura los libros de Reyes, Samuel y Crónicas."},
+            {he:"סוּס", es:"Caballo", son:"sus", tr:"sus", tipo:"Sustantivo común", uso:"Animal de carga o caballería militar.", cita:"<span style='color: #3be8b0;'>סוּס</span> וְרֹכְבוֹ רָמָה בַיָּם", citaTr:"sus verokhevo rama vayam", citaEs:"Echó en el mar al caballo y a su jinete", stat:"Aparece 140 veces, principalmente en poesía y relatos bélicos.", cur:"Animal asociado al poder militar extranjero en la antigüedad bíblica.", imp:"Indispensable para comprender pasajes poéticos, proféticos y bélicos."},
+            {he:"עִיר", es:"Ciudad", son:"ir", tr:"ir", tipo:"Sustantivo común", uso:"Asentamiento humano amurallado o protegido.", cita:"כִּי־רָאִיתִי חָמָס וְרִיב בָּ<span style='color: #3be8b0;'>עִיר</span>", citaTr:"ki raiti chamas veriv ba'ir", citaEs:"Porque he visto violencia y rencilla en la ciudad", stat:"Aparece casi 1,100 veces.", cur:"Designa desde pequeños poblados amurallados hasta grandes metrópolis.", imp:"Fundamental para seguir el mapa de asentamientos y metrópolis en el Tanaj."},
+            {he:"עַם", es:"Pueblo", son:"am", tr:"am", tipo:"Sustantivo común", uso:"Colectividad de personas unidas por lazos de pacto o nación.", cita:"אַתֶּם נִצָּבִים הַיּוֹם כֻּלְּכֶם לִפְנֵי יְהוָה <span style='color: #3be8b0;'>עַמְ</span>יכֶם", citaTr:"atem nitzavim hayom kulkhem lifney adonai amkhem", citaEs:"Vosotros todos esteis hoy presentes delante de Jehová vuestro Dios", stat:"Aparece unas 1,860 veces.", cur:"Indica comunidad de pacto, linaje o nación organizada.", imp:"Abre la puerta a la comprensión teológica de la identidad colectiva de Israel."},
+            {he:"קוֹל", es:"Voz / Sonido", son:"qol", tr:"qol", tipo:"Sustantivo común", uso:"Sonido emitido por seres vivos o elementos naturales.", cita:"וַיִּשְׁמְעוּ אֶת־<span style='color: #3be8b0;'>קוֹל</span> יְהוָה אֱלֹהִים מִתְהַלֵּךְ בַּגָּן", citaTr:"vayishme'u et qol adonai elohim mithalekh bagan", citaEs:"Y oyeron la voz de Jehová Dios que se paseaba en el huerto", stat:"Aparece más de 500 veces en las Escrituras.", cur:"Vehículo principal de la revelación profética y divina.", imp:"Indispensable para identificar los momentos de comunicación divina y sonidos de la naturaleza."},
+            {he:"רֹאשׁ", es:"Cabeza / Principio", son:"rosh", tr:"rosh", tipo:"Sustantivo común", uso:"Parte superior del cuerpo o inicio temporal.", cita:"בְּ<span style='color: #3be8b0;'>רֹאשׁ</span> הַר הָרִים תִּהְיֶה", citaTr:"berosh har harim tihyeh", citaEs:"Sobre la cumbre de los montes será establecida", stat:"Aparece 600 veces con múltiples matices metafóricos.", cur:"Da nombre a festividades sagradas como Rosh Hashaná.", imp:"Permite leer conceptos de jerarquía, liderazgo y principios cronológicos."},
+            {he:"דָּם", es:"Sangre", son:"dam", tr:"dam", tipo:"Sustantivo común", uso:"Fluido vital asociado a la vida biológica.", cita:"כִּי נֶפֶשׁ הַבָּשָׂר בַּ<span style='color: #3be8b0;'>דָּם</span> הִוא", citaTr:"ki nefesh habasar badam hi", citaEs:"Porque la vida de la carne en la sangre está", stat:"Aparece 360 veces en códigos legales y relatos.", cur:"Símbolo sagrado de la vida concedida por el Creador.", imp:"Clave para estudiar leyes levíticas y relatos de sacrificio."},
+            {he:"הַר", es:"Monte / Montaña", son:"har", tr:"har", tipo:"Sustantivo común", uso:"Elevación geográfica destacada.", cita:"עַל־הַ<span style='color: #3be8b0;'>הַר</span> הִיֹּה יֵרָאֶה", citaTr:"al har adonai yeraeh", citaEs:"En el monte del Señor será provisto", stat:"Aparece más de 550 veces.", cur:"Escenario habitual de teofanías y pactos trascendentales.", imp:"Fundamental para la geografía sagrada de los montes bíblicos."},
+            {he:"מַיִם", es:"Agua", son:"máyim", tr:"mayim", tipo:"Sustantivo plural", uso:"Líquido esencial que siempre adopta forma gramatical plural.", cita:"וְרُחַ אֱלֹהִים מְרַחֶפֶת עַל־פְּנֵי הַ<span style='color: #3be8b0;'>מָּיִם</span>", citaTr:"veruach elohim merachefet al pnei hamayim", citaEs:"Y el Espíritu de Dios se movía sobre la faz de las aguas", stat:"Aparece más de 580 veces en el texto bíblico.", cur:"Siempre se escribe en su forma dual terminada en '-im'.", imp:"Esencial para la lectura de narrativas del diluvio, creación y desiertos."},
+            {he:"שָׁמַיִם", es:"Cielos", son:"shamáyim", tr:"shamayim", tipo:"Sustantivo dual", cita:"בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַ<span style='color: #3be8b0;'>שָׁמַיִם</span> וְאֵת הָאָרֶץ", citaTr:"bereshit bara elohim et hashamayim veet haarets", citaEs:"En el principio creó Dios los cielos y la tierra", stat:"Aparece 420 veces en la poesía y narrativa cósmica.", cur:"Etimológicamente sugiere 'donde están las aguas altas'.", imp:"Abre la comprensión de la cosmología hebrea desde el primer versículo."},
+            {he:"אֶרֶץ", es:"Tierra", son:"érets", tr:"erets", tipo:"Sustantivo común", uso:"Superficie cultivable o territorio nacional.", cita:"וְהָ<span style='color: #3be8b0;'>אָרֶץ</span> הָיְתָה תֹהוּ וָבֹהוּ", citaTr:"vehaarets hayetah tohu vavohu", citaEs:"Y la tierra estaba desordenada y vacía", stat:"Aparece más de 2,500 veces en la Biblia hebrea.", cur:"Representa tanto el planeta entero como la tierra prometida de Israel.", imp:"Con más de 2,500 apariciones, es un ancla léxica imprescindible en la geografía bíblica."},
+            {he:"אֵשׁ", es:"Fuego", son:"esh", tr:"esh", tipo:"Sustantivo común", uso:"Elemento calórico de destrucción o purificación.", cita:"וַיַּרְא וְהִנֵּה הַסְּנֶה בֹּעֵר בָּ<span style='color: #3be8b0;'>אֵשׁ</span> וְהַסְּנֶה אֵינֶנּוּ אُכָל", citaTr:"vayar vehine hasene boer baesh vehasene einenu ochel", citaEs:"Y miró, y vio que la zarza ardía en fuego, y la zarza no se consumía", stat:"Aparece 375 veces.", cur:"Elemento clásico de prueba, sacrificio y presencia divina.", imp:"Permite identificar pasajes de juicios, holocaustos y teofanías flamígeras."},
+            {he:"לֵב", es:"Corazón", son:"lev", tr:"lev", tipo:"Sustantivo común", uso:"Sede del pensamiento, voluntad y emociones.", cita:"וְאָהַבְתָּ אֵת יְהוָה אֱלֹהֶיךָ בְּכָל־<span style='color: #3be8b0;'>לְבָבְךָ</span>", citaTr:"veahavta et adonai elohekha bekhol levavkha", citaEs:"Y amarás a Jehová tu Dios de todo tu corazón", stat:"Aparece unas 850 veces en sentido físico y psicológico/moral.", cur:"Para los hebreos era el asiento del intelecto y la voluntad, no solo de la emoción.", imp:"Clave antropológica para entender la psicología moral en la sabiduría hebrea."},
+            {he:"רוּחַ", es:"Espíritu / Viento", son:"rúaj", tr:"ruach", tipo:"Sustantivo común", uso:"Aliento vital, viento o fuerza espiritual inmaterial.", cita:"וְ<span style='color: #3be8b0;'>רוּחַ</span> אֱלֹהִים מְרַחֶפֶת עַל־פְּנֵי הַמָּיִם", citaTr:"veruach elohim merachefet al pnei hamayim", citaEs:"Y el espíritu de Dios se movía sobre la faz de las aguas", stat:"Aparece 378 veces con connotaciones dinámicas.", cur:"Comparte la misma raíz invisible que sopla la vida en el ser humano.", imp:"Esencial para el estudio teológico de la pneumatología bíblica."},
+            {he:"שֶׁמֶשׁ", es:"Sol", son:"shémesh", tr:"shemesh", tipo:"Sustantivo común", uso:"Astro rey del día.", cita:"שֶׁמֶשׁ בְּמַגְוֹרֶיהָ יָרֵחָה עֲמָדָה", citaTr:"shemesh bemazorah yarecha amada", citaEs:"El sol y la luna se detuvieron en su lugar", stat:"Aparece 134 veces.", cur:"Símbolo astronómico y de la luz cotidiana en la poesía hebrea.", imp:"Facilita la lectura de pasajes astronómicos y narrativas del tiempo solar."},
+            {he:"עֵץ", es:"Árbol / Madera", son:"ets", tr:"ets", tipo:"Sustantivo común", uso:"Vegetal leñoso o materia prima.", cita:"וַיַּצְמַח יְהוָה אֱלֹהִים מִן־הָאֲדָמָה כָּל־<span style='color: #3be8b0;'>עֵץ</span>", citaTr:"vayetzemach adonai elohim min haadamah kol ets", citaEs:"Y Jehová Dios hizo nacer de la tierra todo árbol", stat:"Aparece 330 veces en contextos botánicos y legales.", cur:"Protagonista en el Edén y en los maderos de construcción del templo.", imp:"Clave para entender mandamientos agrícolas y relatos del Edén."},
+            {he:"סֵפֶר", es:"Libro / Rollo", son:"séfer", tr:"sefer", tipo:"Sustantivo común", uso:"Documento escrito, rollo o anales históricos.", cita:"זֹּאת <span style='color: #3be8b0;'>סֵפֶר</span> תּוֹלְדֹת אָדָם", citaTr:"zot sefer toledot adam", citaEs:"Este es el libro de las generaciones de Adán", stat:"Aparece 188 veces en la literatura veterotestamentaria.", cur:"Se refiere tanto a rollos antiguos como a documentos escritos formales.", imp:"Fundamental para comprender la autoconciencia literaria de los escribas bíblicos."}
+        ];
+
+        const nivel3Data = [
+            {he:"אָמַר", es:"Dijo / Decir", son:"amar", tr:"amar", tipo:"Verbo", uso:"Introduce diálogos directos.", cita:"וַיֹּ<span style='color: #3be8b0;'>אמֶר</span> אֱלֹהִים יְהִי אוֹר וַיְהִי־אוֹר", citaTr:"vayomer elohim yehi or vayehi or", citaEs:"Y dijo Dios: Sea la luz; y fue la luz", stat:"Es el verbo más utilizado de la Biblia (>5,300 veces).", cur:"Introduce sistemáticamente el diálogo directo en la narrativa bíblica.", imp:"Al ser el verbo más frecuente del Tanaj (>5,300 veces), te permite comprender cualquier diálogo directo."},
+            {he:"בָּרָא", es:"Creó (de la nada)", son:"bará", tr:"bara", tipo:"Verbo", uso:"Acción exclusiva de la divinidad.", cita:"בְּרֵאשִׁית <span style='color: #3be8b0;'>בָּרָא</span> אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ", citaTr:"bereshit bara elohim et hashamayim veet haarets", citaEs:"En el principio creó Dios los cielos y la tierra", stat:"Aparece 53 veces, exclusivamente con sujeto divino.", cur:"Su uso denota la soberanía absoluta de Dios sin requerir materia preexistente.", imp:"Verbo teológico por excelencia que aparece en el versículo inaugural de la Biblia."},
+            {he:"הָיָה", es:"Fue / Estuvo (Ser)", son:"hayah", tr:"hayah", tipo:"Verbo", uso:"Cópula verbal universal.", cita:"וְהָאָרֶץ <span style='color: #3be8b0;'>הָיְתָה</span> תֹהוּ וָבֹהוּ", citaTr:"vehaarets hayetah tohu vavohu", citaEs:"Y la tierra estaba desordenada y vacía", stat:"Aparece más de 3,570 veces; pilar de la cópula verbal hebrea.", cur:"Es el verbo raíz del nombre sagrado YHWH (Yo soy el que soy).", imp:"Pilar indiscutible de la gramática hebrea con más de 3,500 usos de enlace."},
+            {he:"הָלַךְ", es:"Caminó / Ir", son:"halakh", tr:"halakh", tipo:"Verbo", uso:"Desplazamiento físico o conducta ética.", cita:"וְהִתְהַלַּכְתִּי בְּתוֹכְכֶם וְ<span style='color: #3be8b0;'>הָיִיתִי</span> לָכֶם לְאֱלֹהִים", citaTr:"vehithelakti betokhvkhem vehayiti lakhem l'elohim", citaEs:"Y andaré entre vosotros, y seré vuestro Dios", stat:"Aparece unas 1,550 veces.", cur:"Usado tanto para caminar físico como metáfora de conducta moral (Halajá).", imp:"Clave para seguir relatos de peregrinación y mandamientos éticos de conducta."},
+            {he:"יָדַע", es:"Supo / Conocer", son:"yadá", tr:"yada", tipo:"Verbo", uso:"Conocimiento intelectual o relacional íntimo.", cita:"וְהָאָדָם <span style='color: #3be8b0;'>יָדַע</span> אֶת־חַוָּה אִשְׁתּוֹ", citaTr:"vehaadam yada et chava ishto", citaEs:"Y conoció Adán a su mujer Eva", stat:"Aparece 950 veces en un sentido experiencial profundo.", cur:"El conocimiento bíblico implica relación íntima y vivencial, no mera teoría.", imp:"Indispensable para comprender pasajes de sabiduría y revelación personal."},
+            {he:"יָשַׁב", es:"Se sentó / Habitar", son:"yashav", tr:"yashav", tipo:"Verbo", uso:"Residir en un lugar de forma permanente.", cita:"יוֹשֵׁב בַּשָּׁמַיִם יִשְׂחָק", citaTr:"yoshev bashamayim yischaq", citaEs:"El que mora en los cielos se reirá", stat:"Aparece más de 1,080 veces.", cur:"Base de la palabra 'Yishuv' (asentamiento o población humana).", imp:"Fundamental para leer relatos de asentamientos, reinos y moradas divinas."},
+            {he:"כָּתַב", es:"Escribió", son:"katav", tr:"katav", tipo:"Verbo", uso:"Trazar letras sobre un soporte físico.", cita:"<span style='color: #3be8b0;'>כְּתָב</span> מְפֻתָּח מַעֲשֵׂה חָרָשׁ", citaTr:"ketav mefutach maaseh charash", citaEs:"Escritura grabada, obra de entallador", stat:"Aparece 224 veces en contextos legales y proféticos.", cur:"Fundamental para entender el registro escrito de la revelación de la Torá.", imp:"Abre el acceso a los pasajes que tratan sobre tablillas, leyes y registros proféticos."},
+            {he:"נָתַן", es:"Dio / Poner", son:"natan", tr:"natan", tipo:"Verbo", uso:"Otorgar un regalo, derecho o colocar algo.", cita:"כִּי אֶת־הָאָרֶץ אֲשֶׁר־אַתָּה רֹאֶה לְךָ <span style='color: #3be8b0;'>אֶתְּנֶנָּה</span>", citaTr:"ki et haarets asher atah roeh lekha etenena", citaEs:"Porque toda la tierra que ves, la daré a ti", stat:"Supera las 2,010 apariciones en las Escrituras.", cur:"Es un verbo comodín para entregar, conceder o colocar objetos.", imp:"Verbo crucial en los pactos divinos de entrega de la tierra y bendiciones."},
+            {he:"עָשָׂה", es:"Hizo / Hacer", son:"asah", tr:"asah", tipo:"Verbo", uso:"Fabricar, producir o ejecutar una obra.", cita:"וַיַּרְא אֱלֹהִים אֶת־כָּל־אֲשֶׁר <span style='color: #3be8b0;'>עָשָׂה</span> וְהִנֵּה־טוֹב מְאֹד", citaTr:"vayar elohim et kol asher asah vehine tov meod", citaEs:"Y vio Dios todo lo que había hecho, y he aquí que era bueno en gran manera", stat:"Aparece unas 2,630 veces.", cur:"Verbo operativo por excelencia en la obra creadora y humana.", imp:"Con más de 2,600 apariciones, te enseña a seguir toda acción creativa y mandamientos."},
+            {he:"קָרָא", es:"Llamó / Leer", son:"qara", tr:"qara", tipo:"Verbo", uso:"Nombrar a alguien o leer en voz alta.", cita:"וַיִּקְרָא אֱלֹהִים לָאוֹר יוֹם", citaTr:"vayikra elohim laor yom", citaEs:"Y llamó Dios a la luz Día", stat:"Aparece más de 730 veces con doble acepción: invocar y leer.", cur:"Raíz de la palabra 'Mikrá' (la lectura sagrada o Escritura).", imp:"Permite leer pasajes de asignación de nombres, invocación y proclamación."},
+            {he:"רָאָה", es:"Vio / Mirar", son:"ra'ah", tr:"ra'ah", tipo:"Verbo", uso:"Percepción visual física o mental.", cita:"הִנֵּה אַתָּה <span style='color: #3be8b0;'>רֹאֶה</span> בְעֵינֶיךָ", citaTr:"hine atah roeh veeineikha", citaEs:"He aquí tú lo ves con tus propios ojos", stat:"Aparece unas 1,310 veces.", cur:"Da origen al término 'Roëh' aplicado antiguamente a los profetas.", imp:"Clave para seguir descripciones de visiones, milagros y observaciones en el Tanaj."},
+            {he:"שָׁמַע", es:"Escuchó / Oír", son:"shama", tr:"shama", tipo:"Verbo", uso:"Percibir sonidos y obedecer un mandato.", cita:"שְׁמַע יִשְׂרָאֵל יְהוָה אֱלֹהֵינוּ יְהוָה אֶחָד", citaTr:"shema yisrael adonai elohenu adonai echad", citaEs:"Escucha, Israel: Jehová nuestro Dios, Jehová uno es", stat:"Aparece más de 1,150 veces en el Tanaj.", cur:"Para el hebreo, oír auténticamente implica inmediata obediencia activa.", imp:"Esencial para comprender el mandamiento central del Shemá Israel y la respuesta fiel."},
+            {he:"אָכַל", es:"Comió", son:"akhal", tr:"akhal", tipo:"Verbo", uso:"Ingerir alimento físico.", cita:"מִכֹּל עֵץ־הַגָּן <span style='color: #3be8b0;'>אָכֹל</span> תֹּאכֵל", citaTr:"mikol etz hagan achol tokhel", citaEs:"De todo árbol del huerto podrás comer", stat:"Aparece 810 veces.", cur:"Verbo central en las leyes dietéticas y en el relato del fruto prohibido.", imp:"Abre la lectura de códigos alimentarios, banquetes y ofrendas."},
+            {he:"בָּא", es:"Vino / Entrar", son:"ba", tr:"ba", tipo:"Verbo", uso:"Llegar a un sitio o adentrarse.", cita:"וַיָּבֹא אֶל־הַתֵּבָה", citaTr:"vayavo el hateva", citaEs:"Y entró en el arca", stat:"Aparece más de 2,550 veces en narrativas de movimiento.", cur:"Verbo de raíz corta con múltiples conjugaciones de alta frecuencia.", imp:"Fundamental para seguir el movimiento de personajes que entran a lugares sagrados o ciudades."},
+            {he:"בָּנָה", es:"Edificó / Construir", son:"banah", tr:"banah", tipo:"Verbo", uso:"Levantar una estructura material o familiar.", cita:"וַיִּבֶן ה' אֱלֹהִים אֶת־הַצֵּלָע", citaTr:"vayiven adonai elohim et hatzela", citaEs:"Y edificó Jehová Dios la costilla", stat:"Aparece 375 veces.", cur:"Comparte raíz directa con la palabra 'Ben' (hijo) por continuidad familiar.", imp:"Permite leer la construcción de altares, ciudades, casas y linajes."},
+            {he:"זָכַר", es:"Recordó", son:"zakhar", tr:"zakhar", tipo:"Verbo", uso:"Traer a la memoria y actuar en consecuencia.", cita:"<span style='color: #3be8b0;'>זָכוֹר</span> אֶת־יוֹם הַשַּׁבָּת לְקַדְּשׁוֹ", citaTr:"zakhor et yom hashabbat lekadesho", citaEs:"Acuérdate del día de reposo para santificarlo", stat:"Aparece unas 230 veces.", cur:"En la mentalidad bíblica, recordar implica actuar conforme a un pacto.", imp:"Clave para entender los pactos memoriales y la memoria histórica de Israel."},
+            {he:"יָרַד", es:"Descendió / Bajar", son:"yarad", tr:"yarad", tipo:"Verbo", uso:"Moverse de un lugar alto a uno bajo.", cita:"וַיֵּרֶד יְהוָה לִרְאֹת אֶת־הָעִיר", citaTr:"vayered adonai lirot et hair", citaEs:"Y descendió Jehová para ver la ciudad", stat:"Aparece 382 veces.", cur:"Antónimo de 'Alah' (subir); describe descensos físicos y espirituales.", imp:"Esencial para seguir descensos a Egipto, al desierto o visitas divinas."},
+            {he:"מָצָא", es:"Encontró / Hallar", son:"matsa", tr:"matsa", tipo:"Verbo", uso:"Dar con algo buscado u obtener favor.", cita:"מֹצֵא אִשָּׁה <span style='color: #3be8b0;'>מָצָא</span> טוֹב", citaTr:"motze ishah matsa tov", citaEs:"El que halla esposa halla el bien", stat:"Aparece 455 veces en contextos diversos.", cur:"Expresa hallazgos providenciales o búsqueda de favor.", imp:"Permite leer pasajes sapienciales sobre hallazgos de gracia y sabiduría."},
+            {he:"נָפַל", es:"Cayó", son:"nafal", tr:"nafal", tipo:"Verbo", uso:"Desplomarse físicamente o postrarse.", cita:"וַיִּפֹּל אַבְרָהָם עַל־פָּנָיו", citaTr:"vayipol avraham al panav", citaEs:"Y Abraham cayó sobre su rostro", stat:"Aparece 435 veces.", cur:"Indica tanto caídas físicas como postraciones de reverencia profunda.", imp:"Clave para identificar postraciones de adoración y derrotas militares."},
+            {he:"עָלָה", es:"Subió / Ascender", son:"alah", tr:"alah", tipo:"Verbo", uso:"Ir hacia arriba de forma física o espiritual.", cita:"<span style='color: #3be8b0;'>עָלָה</span> אֱלֹהִים בִּתְרוּעָה", citaTr:"alah elohim bitrua", citaEs:"Subió Dios con aclamación", stat:"Aparece más de 890 veces.", cur:"Raíz de la palabra 'Aliyá' (ascenso físico o espiritual a Jerusalén).", imp:"Fundamental para leer peregrinaciones hacia Jerusalén y ofrendas ascendentes."},
+            {he:"קָם", es:"Se levantó", son:"qam", tr:"qam", tipo:"Verbo", uso:"Ponerse en pie o activarse.", cita:"וַיָּקָם וַיֵּלֶךְ", citaTr:"vayaqom vayelekh", citaEs:"Y se levantó y se fue", stat:"Aparece 670 veces como verbo de acción inmediata.", cur:"Verbo fundamental para indicar despertar, ponerse en pie o insurrección.", imp:"Indispensable para seguir la acción dinámica de levantarse y emprender viajes."},
+            {he:"שָׁמַר", es:"Guardó / Cuidar", son:"shamar", tr:"shamar", tipo:"Verbo", uso:"Vigilar con atención o cumplir la ley.", cita:"יִשְׁמֹר יְהוָה אֶת־כָּל־שֹׁמְרָיו", citaTr:"yishmor adonai et kol shomerav", citaEs:"Jehová guarda a todos los que le aman", stat:"Aparece 468 veces.", cur:"Implica custodia rigurosa, cumplimiento de mandamientos y vigilancia.", imp:"Clave teológica en mandamientos de observancia y protección divina."},
+            {he:"מוּת", es:"Murió (Morir)", son:"mut", tr:"mut", tipo:"Verbo", uso:"Cese de la vida biológica.", cita:"כִּי בְּיוֹם אֲכָלְךָ מִמֶּנּוּ מֹות תּוּת", citaTr:"ki beyom akhalcha mimenu mot tut", citaEs:"Porque el día que de él comieres, ciertamente morirás", stat:"Aparece unas 840 veces.", cur:"Verbo básico para el ciclo vital biológico y juicios penales.", imp:"Esencial para comprender sentencias legales, genealogías y relatos históricos."},
+            {he:"נָשָׂא", es:"Levantó / Llevar", son:"nasa", tr:"nasa", tipo:"Verbo", uso:"Cargar peso físico o perdonar culpas.", cita:"שָׂא עיניך וראה", citaTr:"sa eineikha verae", citaEs:"Alza tus ojos y mira", stat:"Aparece más de 650 veces.", cur:"Incluye los modismos de 'perdonar' (llevar pecado) y 'levantar rostro'.", imp:"Abre el entendimiento de modismos hebreos sobre el perdón y el alzamiento de ojos."},
+            {he:"עָמַד", es:"Se puso de pie / Estar", son:"amad", tr:"amad", tipo:"Verbo", uso:"Mantenerse erguido en un lugar.", cita:"וַיַּעֲמֹד מֹשֶׁה בְּשַׁעַר הַמַּחֲנֶה", citaTr:"vayaamad moshe beshaar hamachane", citaEs:"Y se puso Moisés a la puerta del campamento", stat:"Aparece 523 veces.", cur:"Indica posición firme, permanencia o intercesión de pie.", imp:"Fundamental para leer escenas de intercesión profética y posturas firmes."}
+        ];
+
+        const nivel4Data = [
+            {he:"גָּדוֹל", es:"Grande", son:"gadol", tr:"gadol", tipo:"Adjetivo", uso:"Califica magnitud física o importancia.", cita:"וַיַּעַשׂ אֱלֹהִים אֶת־שְׁנֵי הַמְּאֹרוֹת הַ<span style='color: #3be8b0;'>גְּדֹלִים</span>", citaTr:"vayaas elohim et sheni hameorot hagedolim", citaEs:"Y hizo Dios las dos lumbreras grandes", stat:"Aparece 527 veces calificando tamaño, importancia o dignidad.", cur:"Se aplica tanto a objetos físicos colosales como a jerarquías morales.", imp:"Te enseña a reconocer calificativos de grandeza física y dignidad espiritual."},
+            {he:"זָקֵן", es:"Viejo / Anciano", son:"zaqen", tr:"zaqen", tipo:"Adjetivo", uso:"Avanzada edad o dignidad de consejo.", cita:"וַאֲבִי מֵת וְאָנֹכִי <span style='color: #3be8b0;'>זָקֵן</span>", citaTr:"vaavi met veanokhi zaqen", citaEs:"Y mi padre es muerto, y yo soy anciano", stat:"Aparece 175 veces en los libros históricos y legales.", cur:"Designa tanto edad avanzada como dignidad de liderazgo comunitario.", imp:"Clave para identificar consejos de ancianos y relatos de patriarcas longevos."},
+            {he:"חָדָשׁ", es:"Nuevo", son:"jadash", tr:"chadash", tipo:"Adjetivo", uso:"Recién hecho o renovado.", cita:"הִנֵּה עֲשׂוּהוּ <span style='color: #3be8b0;'>חָדָשׁ</span>", citaTr:"hine asuhu chadash", citaEs:"He aquí lo han hecho nuevo", stat:"Aparece 53 veces, muy ligado a renovación profética.", cur:"Raíz de la festividad posbíblica de Janucá (Dedicación/Nuevos comienzos).", imp:"Permite leer profecías de restauración y cánticos nuevos."},
+            {he:"חָזָק", es:"Fuerte", son:"jazaq", tr:"chazaq", tipo:"Adjetivo", uso:"Robustez física o valentía de ánimo.", cita:"<span style='color: #3be8b0;'>חֲזַק</span> וֶאֱמָץ כִּי אַתָּה תַּנְחִיל אֶת־הָעָם", citaTr:"chazaq veemats ki atah tanchil et haam", citaEs:"Esfuérzate y sé valiente, porque tú darás a este pueblo por heredad", stat:"Aparece unas 290 veces.", cur:"Base de la exhortación tradicional 'Jazak, jazak, venitjazaq!'.", imp:"Esencial para captar mensajes de aliento y fortaleza en momentos de prueba."},
+            {he:"חַי", es:"Vivo", son:"jay", tr:"chay", tipo:"Adjetivo", uso:"Que posee vida biológica o espíritu activo.", cita:"כִּי אֲנִי <span style='color: #3be8b0;'>חַי</span> נְאֻם יְהוָה", citaTr:"ki ani chay neum adonai", citaEs:"Vivo yo, dice Jehová", stat:"Aparece 250 veces vinculado al concepto vital.", cur:"Da origen a la famosa exclamación tradicional 'Am Yisrael Jai!'.", imp:"Clave para leer declaraciones de juramento por la vida y aguas vivas."},
+            {he:"טוֹב", es:"Bueno", son:"tov", tr:"tov", tipo:"Adjetivo", uso:"Aprobación moral, estética o funcional.", cita:"וַיַּרְא אֱלֹהִים אֶת־הָאוֹר כִּי־<span style='color: #3be8b0;'>טוֹב</span>", citaTr:"vayar elohim et haor ki tov", citaEs:"Y vio Dios que la luz era buena", stat:"Aparece más de 550 veces como estándar de aprobación y belleza.", cur:"Valor ético y estético primordial en la cosmovisión del Génesis.", imp:"Fundamental para identificar el veredicto divino de bondad sobre la creación."},
+            {he:"יָפֶה", es:"Hermoso", son:"yafeh", tr:"yafeh", tipo:"Adjetivo", uso:"Atractivo visual o estético.", cita:"וְהַנַּעֲרָ <span style='color: #3be8b0;'>יָפַת</span> תֹּאַר וְטוֹבַת מַרְאֶה", citaTr:"vehanaara yafat toar vetovat mareh", citaEs:"Y la doncella era de hermoso parecer y hermosa presencia", stat:"Aparece 42 veces.", cur:"Califica la belleza física estética en personajes clave del relato.", imp:"Permite reconocer descripciones estéticas en cantares y narrativas poéticas."},
+            {he:"יָשָׁר", es:"Recto / Justo", son:"yashar", tr:"yashar", tipo:"Adjetivo", uso:"Conforme a la rectitud moral.", cita:"כִּי־<span style='color: #3be8b0;'>יָשָׁר</span> דְּבַר־יְהוָה", citaTr:"ki yashar devar adonai", citaEs:"Porque la palabra del Señor es recta", stat:"Aparece 120 veces aplicado a caminos y personas íntegras.", cur:"Raíz de la poesía histórica contenida en el perdido 'Libro de Jashar'.", imp:"Clave para evaluar la rectitud moral en proverbios e historias de reyes."},
+            {he:"מַר", es:"Amargo", son:"mar", tr:"mar", tipo:"Adjetivo", uso:"Sabor desagradable o aflicción profunda.", cita:"כִּי הִמְרוּ אֶת־פִּי אֱלֹהִים וַיִּהְיוּ <span style='color: #3be8b0;'>מָרִים</span>", citaTr:"ki himru et pi elohim vayihyu marim", citaEs:"Porque fueron rebeldes a la palabra de Dios y amargos", stat:"Aparece 38 veces.", cur:"Simboliza aflicción, dolor o aguas no aptas para el consumo.", imp:"Abre la lectura de pasajes sobre pruebas amargas en el desierto (Mara)."},
+            {he:"קָדוֹשׁ", es:"Santo / Apartado", son:"qadosh", tr:"qadosh", tipo:"Adjetivo", uso:"Consagrado para uso exclusivo de Dios.", cita:"קְדֹשִׁים תִּהְיוּ כִּי <span style='color: #3be8b0;'>קָדוֹשׁ</span> אֲנִי", citaTr:"kedoshim tihyu ki qadosh ani", citaEs:"Santos seréis, porque santo soy yo", stat:"Aparece 116 veces describiendo la naturaleza divina y ritual.", cur:"Significa esencialmente estar apartado para un propósito exclusivo de Dios.", imp:"Concepto teológico central para entender la santidad y separación ritual."},
+            {he:"קָטֹן", es:"Pequeño", son:"qaton", tr:"qaton", tipo:"Adjetivo", uso:"De menor tamaño o jerarquía menor.", cita:"הַ<span style='color: #3be8b0;'>קָּטֹן</span> יִהְיֶה לָאֶלֶף", citaTr:"haqaton yihyeh laelef", citaEs:"El pequeño vendrá a ser mil", stat:"Aparece 75 veces.", cur:"Antónimo directo de 'Gadol'; describe tamaño o menor jerarquía.", imp:"Clave para contrastar tamaños y jerarquías menores en genealogías."},
+            {he:"קָרוֹב", es:"Cercano", son:"qarov", tr:"qarov", tipo:"Adjetivo", uso:"Proximidad física o afectiva.", cita:"<span style='color: #3be8b0;'>קָרוֹב</span> יְהוָה לְכָל־קֹרְאָיו", citaTr:"qarov adonai lekhol koreav", citaEs:"Cercano está Jehová a todos los que le invocan", stat:"Aparece 80 veces.", cur:"Se usa tanto en distancias espaciales como en cercanía de parentesco.", imp:"Útil para identificar promesas de proximidad y auxilio divino en los Salmos."},
+            {he:"רַב", es:"Mucho / Abundante", son:"rav", tr:"rav", tipo:"Adjetivo", uso:"Gran cantidad o magnitud.", cita:"חֲסָדָיו <span style='color: #3be8b0;'>רַבִּים</span>", citaTr:"chasadav rabim", citaEs:"Sus misericordias son muchas", stat:"Aparece más de 420 veces.", cur:"Raíz histórica del título rabínico ('mi maestro / rabino').", imp:"Te enseña a reconocer expresiones de abundancia y multitud en los textos."},
+            {he:"רַע", es:"Malo / Mal", son:"ra", tr:"ra", tipo:"Adjetivo", uso:"Calidad nociva o moralmente dañina.", cita:"מֵעֵץ הַדַּעַת טוֹב וָ<span style='color: #3be8b0;'>רָע</span>", citaTr:"meetz hadaat tov vara", citaEs:"Del árbol del conocimiento del bien y del mal", stat:"Aparece más de 650 veces en oposición a 'Tov'.", cur:"Concepto moral y físico de calamidad, maldad o infortunio.", imp:"Esencial para comprender la oposición moral entre el bien y el mal."},
+            {he:"טָהוֹר", es:"Limpio / Puro", son:"tahor", tr:"tahor", tipo:"Adjetivo", uso:"Apto para el culto sagrado.", cita:"לֵב <span style='color: #3be8b0;'>טָהוֹר</span> בְּרָא־לִי אֱלֹהִים", citaTr:"lev tahor bera li elohim", citaEs:"Crea en mí, oh Dios, un corazón limpio", stat:"Aparece 94 veces en leyes de pureza ritual.", cur:"Califica aquello apto para acercarse al espacio sagrado.", imp:"Clave para estudiar poesía de purificación espiritual y leyes del templo."},
+            {he:"טָמֵא", es:"Inmundo / Impuro", son:"tame", tr:"tame", tipo:"Adjetivo", uso:"Ritualmente excluido del espacio sagrado.", cita:"<span style='color: #3be8b0;'>טָמֵא</span> טָמֵא יִקְרָא", citaTr:"tame tame yikra", citaEs:"Inmundo, inmundo pregonará", stat:"Aparece 90 veces en el código levítico.", cur:"Condición ritual temporal que impedía la participación en el tabernáculo.", imp:"Fundamental para entender los códigos de sanidad y separación levítica."},
+            {he:"צַדִּיק", es:"Justo", son:"tsadiq", tr:"tsadiq", tipo:"Adjetivo", uso:"Íntegro ante las normas divinas.", cita:"<span style='color: #3be8b0;'>צַדִּיק</span> יְהוָה בְּכָל־דְּרָכָיו", citaTr:"tsadiq adonai bekhol derakhav", citaEs:"Justo es Jehová en todos sus caminos", stat:"Aparece más de 200 veces.", cur:"Modelo ético de rectitud de conducta ante la ley divina.", imp:"Abre el acceso a los textos sapienciales sobre el carácter del hombre íntegro."},
+            {he:"רָשָׁע", es:"Malvado / Impío", son:"rasha", tr:"rasha", tipo:"Adjetivo", uso:"Violador habitual de la ley o justicia.", cita:"לֹא־שָׁלוֹם אָמַר יְהוָה לָ<span style='color: #3be8b0;'>רְשָׁעִים</span>", citaTr:"lo shalom amar adonai lareshashim", citaEs:"No hay paz, dijo Jehová, para los impíos", stat:"Aparece 263 veces en literatura sapiencial y profética.", cur:"Antagonista moral del 'Tsadiq' (justo) en los Salmos.", imp:"Esencial para identificar contrastes éticos en la poesía de los Salmos y Proverbios."},
+            {he:"חָכָם", es:"Sabio", son:"jakham", tr:"chakham", tipo:"Adjetivo", uso:"Poseedor de discernimiento e inteligencia.", cita:"<span style='color: #3be8b0;'>חָכָם</span> בְּעֵינֶיךָ אַל־תִּהְיֶה", citaTr:"chakham beeineikha al tiheyhe", citaEs:"No seas sabio en tu propia opinión", stat:"Aparece 130 veces.", cur:"Protagonista de la literatura de sabiduría (Proverbios, Eclesiastés).", imp:"Clave para leer refranes y consejos de vida en los libros sapienciales."},
+            {he:"אָדֹם", es:"Rojo", son:"adom", tr:"adom", tipo:"Adjetivo (Color)", uso:"Color rubicundo o rojizo.", cita:"הַלְבִישֵׁנִי בְגָדֵי שָׁנִי וְ<span style='color: #3be8b0;'>אָדֹם</span>", citaTr:"halivisheni begade shani veadom", citaEs:"Me vistió de vestiduras de grana y rojo", stat:"Aparece 10 veces; raíz del nombre Edom (Esaú).", cur:"Color asociado a la sangre, la tierra arcillosa y la realeza.", imp:"Útil para identificar etimologías de nombres históricos como Edom."},
+            {he:"לָבָן", es:"Blanco", son:"lavan", tr:"lavan", tipo:"Adjetivo (Color)", uso:"Color claro e inmaculado.", cita:"וּשְׂעַר רֹאשׁוֹ כְּצֶמֶר נָקֵה וְ<span style='color: #3be8b0;'>לָבָן</span>", citaTr:"usear rosho ketzemer nake velavan", citaEs:"Y el cabello de su cabeza como lana limpia y blanca", stat:"Aparece 30 veces en descripciones físicas y textiles.", cur:"Símbolo tradicional de pureza y claridad inmaculada.", imp:"Permite leer descripciones de visiones celestiales y ropajes."},
+            {he:"שָׁחוֹר", es:"Negro", son:"shajor", tr:"shachor", tipo:"Adjetivo (Color)", uso:"Tonalidad oscura.", cita:"קְדֻרְּתִי <span style='color: #3be8b0;'>שְׁחוֹרָה</span> מִקֶּצֶף", citaTr:"kedurtiti shechora miqetzef", citaEs:"Mi piel oscurecida se cae a pedazos", stat:"Aparece 16 veces.", cur:"Utilizado para describir cabellos, piel curtida o nubes de tormenta.", imp:"Útil para captar matices visuales en la poesía de lamento."},
+            {he:"אַחֵר", es:"Otro / Diferente", son:"ajer", tr:"acher", tipo:"Adjetivo", uso:"Diferente o ajeno.", cita:"לֹא יִהְיֶה לְךָ אֱלֹהִים <span style='color: #3be8b0;'>אֲחֵרִים</span>", citaTr:"lo yihyeh lekha elohim acherim", citaEs:"No tendrás dioses ajenos delante de mí", stat:"Aparece 166 veces.", cur:"Clave en el vocabulario del monoteísmo bíblico contra la idolatría.", imp:"Esencial para reconocer mandamientos sobre exclusividad de culto."},
+            {he:"רָחוֹק", es:"Lejano", son:"rajoq", tr:"rachoq", tipo:"Adjetivo", uso:"Gran distancia física o temporal.", cita:"כִּי הִנֵּה <span style='color: #3be8b0;'>רְחֹקֶיךָ</span> יֹאבֵדוּ", citaTr:"ki hine rekhokheikha yovedu", citaEs:"Porque he aquí, los que se alejan de ti perecerán", stat:"Aparece 85 veces.", cur:"Se usa tanto en distancias espaciales como en temporalidad.", imp:"Útil para contrastar distancias y promesas de acercamiento espiritual."},
+            {he:"מָלֵא", es:"Lleno", son:"male", tr:"male", tipo:"Adjetivo", usage:"Saturado en su capacidad total.", cita:"<span style='color: #3be8b0;'>מְלֵאָה</span> מִשְׁפָּט צֶדֶק יָלִין בָּהּ", citaTr:"melea mishpat tzedeq yalin bah", citaEs:"Llena estuvo de juicio, en ella moró la justicia", stat:"Aparece 75 veces.", cur:"Indica saturación o completitud absoluta de un espacio o atributo.", imp:"Clave para leer expresiones proféticas de plenitud y juicio."}
+        ];
+
+        const nivel5Data = [
+            {he:"אֲנִי", es:"Yo", son:"ani", tr:"ani", tipo:"Pronombre personal", uso:"Primera persona singular.", cita:"<span style='color: #3be8b0;'>אֲנִי</span> יְהוָה הוּא שְׁמִי", citaTr:"ani adonai hu shemi", citaEs:"Yo soy Jehová; este es mi nombre", stat:"Aparece 135 veces como declaración de sujeto enfático.", cur:"Forma clásica de primera persona singular en el hebreo bíblico.", imp:"Te permite identificar declaraciones directas en primera persona singular."},
+            {he:"אַתָּה", es:"Tú (masc.)", son:"atah", tr:"atah", tipo:"Pronombre personal", uso:"Segunda persona singular masculina.", cita:"כִּי־<span style='color: #3be8b0;'>אַתָּה</span> עִמָּדִי", citaTr:"ki atah immadi", citaEs:"Porque tú estarás conmigo", stat:"Aparece 740 veces en diálogos directos con Dios o humanos.", cur:"Pronombre masculino singular para segunda persona.", imp:"Esencial para seguir oraciones y peticiones dirigidas directamente a Dios."},
+            {he:"אַתְּ", es:"Tú (fem.)", son:"at", tr:"at", tipo:"Pronombre personal", uso:"Segunda persona singular femenina.", cita:"הֲלוֹא־<span style='color: #3be8b0;'>אַתְּ</span> אַתְּ מְצָאתָהּ", citaTr:"halo at at metztah", citaEs:"¿No eres tú la que lo halló?", stat:"Forma femenina singular directa, menos frecuente por el contexto patriarcal.", cur:"Se distingue por su brevedad gráfica sin vocal final explícita.", imp:"Permite captar diálogos íntimos dirigidos a interlocutores femeninos."},
+            {he:"הוּא", es:"Él", son:"hu", tr:"hu", tipo:"Pronombre personal", uso:"Tercera persona singular masculina.", cita:"שְׁמַע יִשְׂרָאֵל יְהוָה אֱלֹהֵינוּ יְהוָה <span style='color: #3be8b0;'>הוּא</span>", citaTr:"shema yisrael adonai elohenu adonai hu", citaEs:"Jehová nuestro Dios, Jehová uno es", stat:"Aparece más de 1,300 veces (también como 'aquel').", cur:"Funciona habitualmente como cópula demostrativa o pronombre personal.", imp:"Pronto identificas referencias a terceras personas masculinas en relatos y declaraciones."},
+            {he:"הִיא", es:"Ella", son:"hi", tr:"hi", tipo:"Pronombre personal", uso:"Tercera persona singular femenina.", cita:"וְהָאִשָּׁה אֲשֶׁר נָתַתָּ עִמָּדִי <span style='color: #3be8b0;'>הִיא</span>", citaTr:"vehaishah asher natata immadi hi", citaEs:"Y la mujer que me diste por compañera, ella...", stat:"Aparece unas 240 veces en textos narrativos.", cur:"Pronombre femenino de tercera persona singular.", imp:"Útil para seguir sujetos femeninos en narraciones extensas."},
+            {he:"אֲנַחְנוּ", es:"Nosotros", son:"anajnu", tr:"anachnu", tipo:"Pronombre personal", uso:"Primera persona plural.", cita:"וַ<span style='color: #3be8b0;'>אֲנַחְנוּ</span> נַעֲבֹד אֶת־יְהוָה", citaTr:"weanachnu naavod et adonai", citaEs:"Y nosotros serviremos a Jehová", stat:"Aparece 120 veces representando la colectividad.", cur:"Pronombre plural de primera persona de uso general.", imp:"Clave para reconocer declaraciones de compromiso comunitario en el pacto."},
+            {he:"אַתֶּם", es:"Ustedes (masc.)", son:"atem", tr:"atem", tipo:"Pronombre personal", uso:"Segunda persona plural masculina.", cita:"<span style='color: #3be8b0;'>אַתֶּם</span> עֵדַי נְאֻם־יְהוָה", citaTr:"atem eday neum adonai", citaEs:"Vosotros sois mis testigos, dice Jehová", stat:"Aparece unas 280 veces en discursos corporativos.", cur:"Pronombre de segunda persona plural masculino.", imp:"Abre la lectura de amonestaciones proféticas dirigidas a multitudes."},
+            {he:"אַתֵּן", es:"Ustedes (fem.)", son:"aten", tr:"aten", tipo:"Pronombre personal", uso:"Segunda persona plural femenina.", cita:"הַמְקַבְּצֹת <span style='color: #3be8b0;'>אַתֵּן</span>", citaTr:"hamqabetzot aten", citaEs:"Vosotras las que congregáis", stat:"Forma femenina plural rara en el texto bíblico.", cur:"Variante estilística minoritaria frente al masculino genérico.", imp:"Permite leer matices gramaticales específicos en poesía profética."},
+            {he:"הֵם", es:"Ellos", son:"hem", tr:"hem", tipo:"Pronombre personal", uso:"Tercera persona plural masculina.", cita:"<span style='color: #3be8b0;'>הֵם</span> יִירְשׁוּ אָרֶץ", citaTr:"hem yirshu arets", citaEs:"Ellos heredarán la tierra", stat:"Aparece más de 300 veces.", cur:"Pronombre plural de tercera persona masculino.", imp:"Esencial para identificar grupos, naciones o colectivos en los relatos."},
+            {he:"הֵן", es:"Ellas", son:"hen", tr:"hen", tipo:"Pronombre personal", uso:"Tercera persona plural femenina.", cita:"וְהִנֵּה <span style='color: #3be8b0;'>הֵן</span>", citaTr:"vehine hen", citaEs:"Y he aquí ellas...", stat:"Aparece 70 veces con valor pronominal o demostrativo.", cur:"Forma femenina plural de tercera persona.", imp:"Útil para identificar plurales femeninos en listados y descripciones."},
+            {he:"מִי", es:"Quién", son:"mi", tr:"mi", tipo:"Pronombre interrogativo", uso:"Pregunta sobre personas.", cita:"<span style='color: #3be8b0;'>מִי</span> יַעֲלֶה בְּהַר־יְהוָה", citaTr:"mi yaale bhar adonai", citaEs:"¿Quién subirá al monte de Jehová?", stat:"Aparece 420 veces en preguntas retóricas y directas.", cur:"Inicia cuestionamientos teológicos y existenciales profundos.", imp:"Clave para reconocer preguntas retóricas e interrogantes sapienciales."},
+            {he:"מָה", es:"Qué", son:"mah", tr:"mah", tipo:"Pronombre interrogativo", uso:"Interrogación sobre cosas o exclamación.", cita:"<span style='color: #3be8b0;'>מָה</span>־רַבּוּ מַעֲשֶׂיךָ יְהוָה", citaTr:"mah rabu maaseikha adonai", citaEs:"¡Cuán grandes son tus obras, oh Jehová!", stat:"Aparece más de 500 veces como exclamación o interrogación.", cur:"A menudo se une a preposiciones formando contracciones ('Lama' / ¿Por qué?).", imp:"Permite leer exclamaciones de asombro y preguntas directas en los Salmos."},
+            {he:"אֶל", es:"A / Hacia", son:"el", tr:"el", tipo:"Preposición", uso:"Indica dirección hacia un objetivo.", cita:"וַיֹּאמֶר קַיִן <span style='color: #3be8b0;'>אֶל</span>־הֶבֶל אָחִיו", citaTr:"vayomer qayin el hevel achiv", citaEs:"Y dijo Caín a su hermano Abel", stat:"Aparece más de 5,500 veces; una de las partículas más recurrentes.", cur:"Indica dirección física o metafórica hacia un destino.", imp:"Con más de 5,500 usos, es la partícula indispensable para seguir cualquier dirección."},
+            {he:"בְּ", es:"En / Con / Por", son:"be", tr:"be", tipo:"Preposición inseparable", uso:"Prefijo que denota ubicación o instrumento.", cita:"<span style='color: #3be8b0;'>בְּ</span>רֵאשִׁית בָּרָא", citaTr:"bereshit bara", citaEs:"En el principio creó...", stat:"Es un prefijo inseparable ultra frecuente en el texto sagrado.", cur:"Se adhiere directamente al principio de la palabra que modifica.", imp:"Aparece pegada en la primera palabra de la Biblia; su dominio es vital."},
+            {he:"כְּ", es:"Como / Según", son:"ke", tr:"ke", tipo:"Preposición inseparable", uso:"Prefijo comparativo.", cita:"וְהָאָדָם הָיָה <span style='color: #3be8b0;'>כְּ</span>אַחַד מִמֶּנּוּ", citaTr:"vehaadam hayah keachad mimenu", citaEs:"Y el hombre ha venido a ser como uno de nosotros", stat:"Aparece miles de veces introduciendo símiles y comparaciones.", cur:"Preposición prefijada para analogías poéticas y legales.", imp:"Clave absoluta para reconocer comparaciones y metáforas en la poesía bíblica."},
+            {he:"לְ", es:"A / Para", son:"le", tr:"le", tipo:"Preposición inseparable", uso:"Indica destino, dativo o autoría.", cita:"<span style='color: #3be8b0;'>לְ</span>דָוִד מִזְמוֹר", citaTr:"ledavid mizmor", citaEs:"Salmo de David (para David)", stat:"Partícula de dativo y posesión sumamente abundante.", cur:"Prefijo fundamental para indicar destino o autoría literaria.", imp:"Indispensable para identificar destinatarios, dedicatorias y posesión."},
+            {he:"מִן", es:"De / Desde", son:"min", tr:"min", tipo:"Preposición", uso:"Indica procedencia u origen.", cita:"מִן־הָעֵץ אֲשֶׁר צִוִּיתִיךָ לְבִלְתִּי אֲֹכָל מִמֶּנּוּ", citaTr:"min haetz asher tzivitikha levilti akhol mimenu", citaEs:"Del árbol de que te mandé no comieses", stat:"Aparece cerca de 1,900 veces.", cur:"Indica separación, origen o procedencia geográfica/temporal.", imp:"Facilita la lectura de orígenes, partidas y restricciones espaciales."},
+            {he:"עַל", es:"Sobre / Acerca de", son:"al", tr:"al", tipo:"Preposición", uso:"Posición superior o temática de estudio.", cita:"וְרוּחַ אֱלֹהִים מְרַחֶפֶת <span style='color: #3be8b0;'>עַל</span>־פְּנֵי", citaTr:"veruach elohim merachefet al pnei", citaEs:"Y el espíritu de Dios se movía sobre la faz...", stat:"Aparece más de 4,800 veces en construcciones espaciales y abstractas.", cur:"Preposición versátil para cobertura, superioridad o temática.", imp:"Con miles de usos, es la base para expresar superioridad física y temática."},
+            {he:"עִם", es:"Con", son:"im", tr:"im", tipo:"Preposición", uso:"Compañía o asociación.", cita:"כִּי־<span style='color: #3be8b0;'>עִמְּךָ</span> מְקוֹר חַיִּים", citaTr:"ki immekha mekor chayim", citaEs:"Porque contigo está el manantial de la vida", stat:"Aparece unas 1,050 veces.", cur:"Denota compañía mutua o asociación en contraste con otras partículas.", imp:"Clave para seguir textos de alianza, compañía y presencia divina."},
+            {he:"תַּחַת", es:"Debajo de", son:"tajat", tr:"tajat", tipo:"Preposición", uso:"Posición inferior o en lugar de.", cita:"וַיִּגְזֹר אֱלֹהִים אֶת־הָאֹור מִ<span style='color: #3be8b0;'>תַּחַת</span> לָרָקִיעַ", citaTr:"vayigzor elohim et haor mitachat laraqia", citaEs:"Y separó Dios la luz de debajo de la expansión", stat:"Aparece 145 veces.", cur:"Se usa para subordinación física ('bajo los pies') o sustitución.", imp:"Útil para identificar relaciones de subordinación y posición inferior."},
+            {he:"בֵּין", es:"Entre", son:"beyn", tr:"beyn", tipo:"Preposición", uso:"Punto medio entre dos límites.", cita:"וַיַּבְדֵּל אֱלֹהִים <span style='color: #3be8b0;'>בֵּין</span> הָאוֹר וּבֵין הַחֹשֶׁךְ", citaTr:"vayavdel elohim beyn haor ubein hachoshekh", citaEs:"Y separó Dios entre la luz y las tinieblas", stat:"Aparece unas 340 veces en textos de distinción cosmológica.", cur:"A menudo se duplica ('bein... uvein') para marcar extremos divisorios.", imp:"Esencial para seguir relatos de separación, división y pactos entre partes."},
+            {he:"לִפְנֵי", es:"Delante de", son:"lifney", tr:"lifney", tipo:"Preposición", uso:"Presencia física ante alguien.", cita:"לֹא יִהְיֶה־לְךָ אֱלֹהִים אֲחֵרִים <span style='color: #3be8b0;'>לִפְנֵי</span>", citaTr:"lo yihyeh lekha elohim acherim lifnay", citaEs:"No tendrás dioses ajenos delante de mí", stat:"Aparece 320 veces.", cur:"Compuesta literalmente por la preposición 'Le' y el sustantivo 'Panim' (rostro).", imp:"Clave para reconocer expresiones de reverencia ante la presencia de alguien."},
+            {he:"אַחֲרֵי", es:"Después de / Detrás", son:"ajarey", tr:"acharey", tipo:"Preposición", uso:"Posterioridad en tiempo o espacio.", cita:"וַיְהִי <span style='color: #3be8b0;'>אַחֲרֵי</span> הַדְּבָרִים הָאֵלֶּה", citaTr:"vayehi acharey hadevarim haeleh", citaEs:"Aconteció después de estas cosas", stat:"Aparece unas 300 veces en secuencias cronológicas.", cur:"Indica tanto posterioridad temporal como seguimiento físico.", imp:"Indispensable para ordenar cronológicamente las secuencias narrativas."},
+            {he:"עַד", es:"Hasta", son:"ad", tr:"ad", tipo:"Preposición", uso:"Límite final temporal o espacial.", cita:"<span style='color: #3be8b0;'>עַד</span>־שׁוּבְךָ אֶל־הָאֲדָמָה", citaTr:"ad shuvkha el haadamah", citaEs:"Hasta que vuelvas a la tierra", stat:"Aparece más de 360 veces.", cur:"Marca el límite final de una acción, espacio o tiempo.", imp:"Clave para delimitar fronteras temporales y espaciales en los relatos."},
+            {he:"פֶּן", es:"Para que no / No sea que", son:"pen", tr:"pen", tipo:"Conjunción negativa", cita:"<span style='color: #3be8b0;'>פֶּן</span>־יִשְׁלַח יָדֹו", citaTr:"pen yishlach yado", citaEs:"Para que no alargue su mano...", stat:"Aparece 134 veces en advertencias severas y mandamientos protectores.", cur:"Introduce una cláusula condicional de temor o precaución inminente.", imp:"Permite comprender advertencias preventivas y leyes de resguardo."}
+        ];
+
+        const nivelesDatos = {
+            1: [...vocales, ...letras, ...sofit],
+            2: nivel2Data,
+            3: nivel3Data,
+            4: nivel4Data,
+            5: nivel5Data
+        };
+
+        const nivelMotivacionesGenerales = {
+            1: "Aprender el alefato y las vocales es indispensable: es la puerta maestra para leer el 100% de las Escrituras originales sin intermediarios.",
+            2: "Estos sustantivos fundamentales conforman el cimiento de la narrativa. Dominarlos te dará acceso inmediato al vocabulario básico de los relatos sagrados.",
+            3: "Con estos verbos de alta frecuencia podrás comprender las acciones principales de la creación, la historia patriarcal y los mandamientos.",
+            4: "Los adjetivos y cualidades otorgan textura moral y estética a los textos; te permitirán distinguir qué es santo, puro, grande o verdadero.",
+            5: "Los pronombres y conectores arman la estructura gramatical fina de las oraciones bíblicas, conectando cada frase con absoluta precisión."
+        };
+
+        function obtenerExtraInfo(item, nivel) {
+            let motivacion = item.imp || nivelMotivacionesGenerales[nivel];
+            let stat = item.stat || "Aparece con una frecuencia vital en los escritos sagrados del Tanaj.";
+            let cur = item.cur || "El idioma hebreo encierra conceptos profundos y significados pictográficos en cada raíz ancestral.";
+            return { stat, cur, motivacion };
+        }
+
+        function shuffle(a) { 
+            return a.slice().sort(() => Math.random() - 0.5); 
+        }
+
+        function toggleLayout() {
+            layoutMode = (layoutMode + 1) % 3;
+            const mainCont = document.getElementById('contenedor-principal');
+            const mainHeader = document.getElementById('main-header');
+            const iconoLayout = document.getElementById('icono-layout');
+            const labelLayout = document.getElementById('label-layout');
+            
+            if (layoutMode === 0) { // Centro
+                mainCont.classList.remove('max-w-[95%]', 'sm:max-w-[95%]');
+                mainCont.classList.add('max-w-6xl');
+                mainHeader.classList.remove('max-w-[95%]', 'sm:max-w-[95%]');
+                mainHeader.classList.add('max-w-6xl');
+                document.body.classList.remove('clean-mode');
+                iconoLayout.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />';
+                labelLayout.textContent = "Centro";
+            } else if (layoutMode === 1) { // Ancho
+                mainCont.classList.remove('max-w-6xl');
+                mainCont.classList.add('max-w-[95%]', 'sm:max-w-[95%]'); 
+                mainHeader.classList.remove('max-w-6xl');
+                mainHeader.classList.add('max-w-[95%]', 'sm:max-w-[95%]');
+                document.body.classList.remove('clean-mode');
+                iconoLayout.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H6A2.25 2.25 0 003.75 6v1.5M16.5 3.75H18A2.25 2.25 0 0120.25 6v1.5m0 9V18A2.25 2.25 0 0118 20.25h-1.5m-9 0H6A2.25 2.25 0 013.75 18v-1.5M15 12a3 3 0 11-6 0 3 3 0 016 0z" />';
+                labelLayout.textContent = "Ancho";
+            } else { // Limpio
+                document.body.classList.add('clean-mode');
+                iconoLayout.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />';
+                labelLayout.textContent = "Limpio";
+            }
+        }
+
+        function toggleFont() {
+            fontStyleIndex = (fontStyleIndex + 1) % 4;
+            const h = document.getElementById('hebreo');
+            h.classList.remove('hebrew-classic', 'hebrew-modern', 'hebrew-serif', 'hebrew-bold');
+            if (fontStyleIndex === 0) h.classList.add('hebrew-classic');
+            if (fontStyleIndex === 1) h.classList.add('hebrew-modern');
+            if (fontStyleIndex === 2) h.classList.add('hebrew-serif');
+            if (fontStyleIndex === 3) h.classList.add('hebrew-bold');
+        }
+
+        function toggleSize() {
+            fontSizeIndex = (fontSizeIndex + 1) % 2;
+            const h = document.getElementById('hebreo');
+            if (fontSizeIndex === 0) {
+                h.classList.remove('size-large');
+                h.classList.add('size-normal');
+            } else {
+                h.classList.remove('size-normal');
+                h.classList.add('size-large');
+            }
+        }
+
+        function toggleInfoPosition() {
+            const cont = document.getElementById('contenedor-principal');
+            const info = document.getElementById('modulo-info');
+            if (infoState === 'side') {
+                infoState = 'bottom';
+                cont.classList.remove('lg:flex-row');
+                cont.classList.add('flex-col');
+                info.classList.remove('lg:w-1/3');
+                info.classList.add('w-full');
+            } else {
+                infoState = 'side';
+                cont.classList.remove('flex-col');
+                cont.classList.add('lg:flex-row');
+                info.classList.remove('w-full');
+                info.classList.add('lg:w-1/3');
+            }
+        }
+
+        function toggleInfoMinimize() {
+            const content = document.getElementById('contenido-info-modulo');
+            const btnMin = document.getElementById('btn-minimizar');
+            const info = document.getElementById('modulo-info');
+            const titulo = document.getElementById('panel-titulo');
+            
+            if (info.classList.contains('minimized-info')) {
+                // Expandir
+                info.classList.remove('minimized-info');
+                content.style.display = 'flex';
+                titulo.style.display = 'flex';
+                btnMin.textContent = '➖';
+                info.style.maxHeight = 'none';
+            } else {
+                // Contraer completamente a lo ancho y ocultar título
+                info.classList.add('minimized-info');
+                content.style.display = 'none';
+                titulo.style.display = 'none';
+                btnMin.textContent = '➕';
+            }
+        }
+
+        function renderNiveles() {
+            const cont = document.getElementById("niveles");
+            cont.innerHTML = "";
+            [1,2,3,4,5].forEach(n => {
+                const b = document.createElement("button");
+                b.className = "px-4 py-2 rounded-lg font-bold transition-all text-sm sm:text-base border border-[#2a3a5a] bg-[#16213e] text-white hover:bg-[#e94560]";
+                b.textContent = `Nivel ${n}`;
+                if (n === nivelActual) b.classList.add("bg-[#e94560]", "shadow-lg");
+                b.onclick = () => { nivelActual = n; parteActual = 1; construirPartesYExamenes(); setParte(1); };
+                cont.appendChild(b);
+            });
+        }
+
+        function obtenerPartesDelNivel() {
+            const dataNivel = nivelesDatos[nivelActual];
+            const partes = [];
+            let totalPartes = Math.ceil(dataNivel.length / 5);
+            
+            for(let p = 1; p <= totalPartes; p++) {
+                const start = (p - 1) * 5;
+                const chunk = dataNivel.slice(start, start + 5);
+                partes.push({id: p, label: `${p}`, items: chunk});
+            }
+            // Examen global al final de cada nivel
+            partes.push({id: 'global', label: 'Global', items: [...dataNivel]});
+            return partes;
+        }
+
+        function renderPartes() {
+            const cont = document.getElementById("partes");
+            cont.innerHTML = "";
+            const partes = obtenerPartesDelNivel();
+            
+            partes.forEach(pt => {
+                const b = document.createElement("button");
+                b.className = "px-3 py-1 rounded-md font-bold transition-all text-xs sm:text-sm border border-[#2a3a5a] bg-[#16213e] text-gray-300 hover:text-white";
+                b.textContent = pt.label;
+                if (pt.id === parteActual) {
+                    b.classList.add("bg-[#3be8b0]", "text-[#1a1a2e]", "border-[#3be8b0]", "shadow");
+                }
+                if (pt.id === 'global') {
+                    b.classList.remove('text-gray-300');
+                    b.classList.add('text-[#f39c12]');
+                    if (pt.id === parteActual) {
+                        b.classList.remove("bg-[#3be8b0]");
+                        b.classList.add("bg-[#f39c12]");
+                    }
+                }
+                b.onclick = () => setParte(pt.id);
+                cont.appendChild(b);
+            });
+        }
+
+        function construirPartesYExamenes() {
+            parteActual = 1;
+        }
+
+        function setModo(m) {
+            modo = m;
+            const btnEns = document.getElementById("btn-ensenar");
+            const btnEx = document.getElementById("btn-examinar");
+            const btnPrev = document.getElementById("btn-prev-inline");
+            const btnNext = document.getElementById("btn-next-inline");
+
+            if(modo === 'enseñar') {
+                btnEns.classList.add("bg-[#e94560]", "text-white", "shadow-md");
+                btnEns.classList.remove("text-gray-400");
+                btnEx.classList.remove("bg-[#e94560]", "text-white", "shadow-md");
+                btnEx.classList.add("text-gray-400");
+                if(btnPrev) btnPrev.style.display = "flex";
+                if(btnNext) btnNext.style.display = "flex";
+                document.getElementById("barra").classList.add("hidden");
+            } else {
+                btnEx.classList.add("bg-[#e94560]", "text-white", "shadow-md");
+                btnEx.classList.remove("text-gray-400");
+                btnEns.classList.remove("bg-[#e94560]", "text-white", "shadow-md");
+                btnEns.classList.add("text-gray-400");
+                if(btnPrev) btnPrev.style.display = "none";
+                if(btnNext) btnNext.style.display = "none";
+                document.getElementById("barra").classList.remove("hidden");
+            }
+            setParte(parteActual);
+        }
+
+        function setParte(p) {
+            parteActual = p;
+            renderNiveles();
+            renderPartes();
+            
+            const partes = obtenerPartesDelNivel();
+            const encontrada = partes.find(x => x.id === p) || partes[0];
+            itemsMuestra = encontrada.items;
+            
+            items = modo === 'enseñar' ? itemsMuestra : shuffle([...itemsMuestra]);
+            indice = 0;
+            aciertos = 0;
+            mostrar();
+        }
+
+        function navegarEstudio(dir) {
+            if (modo !== 'enseñar') return;
+            indice += dir;
+            if (indice < 0) {
+                const partes = obtenerPartesDelNivel();
+                let idxActual = partes.findIndex(x => x.id === parteActual);
+                if (idxActual > 0) {
+                    setParte(partes[idxActual - 1].id);
+                    indice = items.length - 1;
+                } else {
+                    indice = 0;
+                }
+            } else if (indice >= items.length) {
+                const partes = obtenerPartesDelNivel();
+                let idxActual = partes.findIndex(x => x.id === parteActual);
+                if (idxActual < partes.length - 1) {
+                    setParte(partes[idxActual + 1].id);
+                } else {
+                    indice = items.length - 1;
+                }
+            } else {
+                mostrar();
+            }
+        }
+
+        function mostrar() {
+            const cajaOpts = document.getElementById("opciones");
+            const he = document.getElementById("hebreo");
+            
+            if (indice >= items.length && modo === 'examinar') {
+                he.textContent = "";
+                document.getElementById("pregunta").textContent = `¡Parte ${parteActual} Completada!`;
+                cajaOpts.innerHTML = "";
+                document.getElementById("detalle").style.display = "none";
+                document.getElementById("feedback").innerHTML = `
+                    <div class="text-[#3be8b0] text-2xl mb-2">Puntuación: ${aciertos} / ${items.length}</div>
+                    <div class="text-sm text-gray-400">Presiona <b class="text-white">→</b> para ir a la siguiente parte o <b class="text-white">←</b> para repetir.</div>
+                `;
+                document.getElementById("progreso").textContent = "";
+                return;
+            }
+
+            const it = items[indice];
+            
+            // Actualizar módulo Info con datos específicos de la flashcard
+            const extra = obtenerExtraInfo(it, nivelActual);
+            document.getElementById("nivel-motivacion").textContent = extra.motivacion;
+            document.getElementById("stat-text").textContent = extra.stat;
+            document.getElementById("trivia-text").textContent = extra.cur;
+
+            // Formatear Tarjeta
+            he.classList.remove('fade-in');
+            void he.offsetWidth; 
+            he.classList.add('fade-in');
+            he.textContent = it.he;
+            
+            const det = document.getElementById("detalle");
+            
+            let htmlDetalle = `<div class="font-bold text-[#3be8b0] text-lg mb-1">${it.es}</div>`;
+            htmlDetalle += `<div class="text-gray-200">Pronunciación: <b class="text-white">${it.son}</b></div>`;
+            htmlDetalle += `<div class="text-gray-400 text-sm">Transliteración: <em>${it.tr}</em></div>`;
+            if(it.tipo) htmlDetalle += `<div class="text-[#f39c12] text-sm mt-1 uppercase tracking-wide font-bold">${it.tipo}</div>`;
+            if(it.uso) htmlDetalle += `<div class="text-gray-300 text-sm italic mt-1">${it.uso}</div>`;
+            if(it.cita) {
+                htmlDetalle += `<div class="mt-3 pt-3 border-t border-gray-600">
+                    <div class="text-2xl font-serif text-white mb-2 leading-relaxed" dir="rtl">${it.cita}</div>
+                    <div class="text-sm text-[#f39c12] italic font-medium">${it.citaTr}</div>
+                    <div class="text-sm text-gray-300 mt-0.5">${it.citaEs}</div>
+                </div>`;
+            }
+
+            if (modo === 'enseñar') {
+                document.getElementById("pregunta").textContent = `Flashcard ${indice + 1} de ${items.length} (Parte ${parteActual})`;
+                cajaOpts.innerHTML = "";
+                document.getElementById("feedback").textContent = "";
+                det.innerHTML = htmlDetalle;
+                det.style.display = "block";
+            } else { // examinar
+                document.getElementById("pregunta").textContent = "¿Qué significa o cómo se lee?";
+                det.style.display = "none";
+                det.innerHTML = htmlDetalle;
+                
+                // Generar 4 opciones
+                const fullPool = nivelesDatos[nivelActual];
+                let distractores = fullPool.filter(x => x.es !== it.es).sort(() => Math.random() - 0.5).slice(0, 3);
+                
+                while(distractores.length < 3) {
+                    distractores.push(fullPool[Math.floor(Math.random() * fullPool.length)]);
+                }
+                
+                const opts = shuffle([it, ...distractores]);
+                cajaOpts.innerHTML = "";
+                
+                opts.forEach((o, i) => {
+                    const btn = document.createElement("button");
+                    btn.className = "bg-opciones bg-[#0f3460] hover:bg-[#1a4b8c] text-white p-4 rounded-xl text-lg font-medium transition-all shadow-md text-left flex items-center";
+                    let btnText = nivelActual === 1 ? `${o.es} <span class="ml-2 text-sm text-gray-400">(${o.son})</span>` : o.es;
+                    btn.innerHTML = `<span class="bg-[#16213e] text-gray-400 rounded w-6 h-6 flex items-center justify-center mr-3 text-sm shrink-0 border border-[#2a3a5a]">${i+1}</span> <span>${btnText}</span>`;
+                    
+                    btn.dataset.num = i + 1;
+                    btn.onclick = () => responder(btn, o.es === it.es, it);
+                    cajaOpts.appendChild(btn);
+                });
+                
+                document.getElementById("feedback").textContent = "";
+                document.getElementById("progreso").textContent = `Pregunta ${indice + 1} de ${items.length}`;
+            }
+        }
+
+        function responder(btn, ok, it) {
+            document.querySelectorAll("#opciones button").forEach(b => {
+                b.disabled = true;
+                b.classList.add("opacity-60");
+            });
+            btn.classList.remove("opacity-60", "bg-[#0f3460]", "hover:bg-[#1a4b8c]");
+            
+            if (ok) {
+                btn.classList.add("bg-[#2ecc71]", "text-[#1a1a2e]");
+                aciertos++;
+                document.getElementById("feedback").innerHTML = `<span class="text-[#2ecc71]">¡Correcto!</span>`;
+            } else {
+                btn.classList.add("bg-[#e74c3c]");
+                document.getElementById("feedback").innerHTML = `<span class="text-[#e74c3c]">Incorrecto. Era: ${it.es}</span>`;
+                document.querySelectorAll("#opciones button").forEach(b => {
+                    if(b.textContent.includes(it.es)) {
+                        b.classList.remove("opacity-60", "bg-[#0f3460]");
+                        b.classList.add("bg-[#2ecc71]", "text-[#1a1a2e]", "ring-2", "ring-white");
+                    }
+                });
+            }
+            
+            document.getElementById("detalle").style.display = "block";
+            
+            setTimeout(() => {
+                indice++;
+                mostrar();
+            }, ok ? 400 : 1500);
+        }
+
+        // Controles de Teclado
+        document.addEventListener('keydown', (e) => {
+            if (modo === 'examinar') {
+                if (indice < items.length) {
+                    const num = parseInt(e.key);
+                    if (num >= 1 && num <= 4) {
+                        const btn = document.querySelector(`#opciones button[data-num="${num}"]`);
+                        if (btn && !btn.disabled) btn.click();
+                    }
+                } else {
+                    const partes = obtenerPartesDelNivel();
+                    let idxActual = partes.findIndex(x => x.id === parteActual);
+                    if (e.key === 'ArrowRight') {
+                        if (idxActual < partes.length - 1) {
+                            setParte(partes[idxActual + 1].id);
+                        }
+                    } else if (e.key === 'ArrowLeft') {
+                        setParte(parteActual); // Repetir examen
+                    }
+                }
+            } 
+            else if (modo === 'enseñar') {
+                if (e.key === 'ArrowRight') navegarEstudio(1);
+                if (e.key === 'ArrowLeft') navegarEstudio(-1);
+            }
+        });
+
+        // Event listeners seguros al cargar el DOM
+        window.onload = () => {
+            const btnPrev = document.getElementById("btn-prev-inline");
+            const btnNext = document.getElementById("btn-next-inline");
+            
+            if(btnPrev) btnPrev.onclick = () => navegarEstudio(-1);
+            if(btnNext) btnNext.onclick = () => navegarEstudio(1);
+
+            const btnEns = document.getElementById("btn-ensenar");
+            const btnEx = document.getElementById("btn-examinar");
+            
+            if(btnEns) btnEns.onclick = () => setModo('enseñar');
+            if(btnEx) btnEx.onclick = () => setModo('examinar');
+
+            setParte(1);
+        };
+    </script>
+</body>
+</html>
+```eof

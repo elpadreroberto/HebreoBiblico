@@ -1,0 +1,35 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Hebreo Bíblico",
+      "hasCanvas": false,
+      "bodyTextLen": 1098,
+      "bodyTextHash": "744c430f69dc6d1fa05d4ef49291b5b5cf94583e5a462ffe01701a2f997afbdb",
+      "bodyTextPrefix": "Saltar al contenido א Hebreo Bíblico עִבְרִית Inicio Alefato Voc",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Hebreo Bíblico",
+      "hasCanvas": false,
+      "bodyTextLen": 1098,
+      "bodyTextHash": "d389efadde6d22069299d7d9c81e1089428dc6169d0825ec4dbeb0a1f7a6a786",
+      "bodyTextPrefix": "Saltar al contenido א Hebreo Bíblico עִבְרִית Entrar Inicio Alef",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
