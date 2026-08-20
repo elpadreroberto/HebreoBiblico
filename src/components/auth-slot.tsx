@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
+import { authEnabled } from "@/lib/auth/client";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { UserButton } from "@/lib/auth/gates";
 
 export function AuthSlot() {
+  if (!authEnabled) return null;
   const { user, isPending } = useCurrentUserState();
   if (isPending) {
     return <div className="size-9 animate-pulse rounded-full bg-raised" aria-hidden="true" />;
