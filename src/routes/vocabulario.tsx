@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AlefatoStudio } from "@/components/alefato-studio";
 import { AppShell } from "@/components/app-shell";
-import { VocabStudio } from "@/components/vocab-studio";
 
 export const Route = createFileRoute("/vocabulario")({ component: VocabPage });
 
 function VocabPage() {
   return (
-    <AppShell current="vocabulario">
-      <VocabStudio />
+    <AppShell current="study">
+      <AlefatoStudio initialPathLevel={6} />
     </AppShell>
   );
 }

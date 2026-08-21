@@ -1,20 +1,12 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { AuthSlot } from "@/components/auth-slot";
-import { cn } from "@/lib/utils";
-
-const NAV = [
-  { to: "/", label: "Inicio" },
-  { to: "/alefato", label: "Alefato" },
-  { to: "/vocabulario", label: "Vocabulario" },
-] as const;
 
 export function AppShell({
   children,
-  current,
 }: {
   children: ReactNode;
-  current: "home" | "alefato" | "vocabulario" | "login";
+  current?: "study" | "login" | "home" | "alefato" | "vocabulario";
 }) {
   return (
     <div className="min-h-dvh">
@@ -39,49 +31,9 @@ export function AppShell({
               </span>
             </span>
           </Link>
-          <nav aria-label="Principal" className="flex items-center gap-1">
-            {NAV.map((item) => {
-              const active =
-                (item.to === "/" && current === "home") ||
-                (item.to === "/alefato" && current === "alefato") ||
-                (item.to === "/vocabulario" && current === "vocabulario");
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "hidden h-11 items-center rounded-md px-3 text-sm font-medium transition-colors duration-150 sm:inline-flex",
-                    active ? "bg-raised text-fg" : "text-muted hover:bg-raised/70 hover:text-fg",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+          <nav aria-label="Cuenta" className="flex items-center gap-1">
             <AuthSlot />
           </nav>
-        </div>
-        <div className="flex gap-1 border-t border-border px-2 py-1 sm:hidden" aria-label="Secciones">
-          {NAV.map((item) => {
-            const active =
-              (item.to === "/" && current === "home") ||
-              (item.to === "/alefato" && current === "alefato") ||
-              (item.to === "/vocabulario" && current === "vocabulario");
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex h-10 flex-1 items-center justify-center rounded-md text-sm font-medium",
-                  active ? "bg-raised text-fg" : "text-muted",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
         </div>
       </header>
       <div id="contenido">{children}</div>

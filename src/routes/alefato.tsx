@@ -6,7 +6,7 @@ export const Route = createFileRoute("/alefato")({ component: AlefatoPage });
 
 function AlefatoPage() {
   return (
-    <AppShell current="alefato">
+    <AppShell current="study">
       <AlefatoStudio />
     </AppShell>
   );

@@ -17,6 +17,7 @@
   --color-accent-fg: #0b0e14;
   --color-teal: #5a9e93;
   --color-teal-fg: #071311;
+  --color-vowel: #3ee0c5;
   --color-danger: #c45c5c;
   --color-ok: #6fb07a;
   --color-border: rgb(236 232 225 / 0.12);
@@ -90,13 +91,20 @@
   font-weight: 700;
 }
 
+.he-consonant {
+  color: var(--color-fg);
+}
+.niqqud-vowel {
+  color: var(--color-vowel);
+}
+
 .size-he-md {
-  font-size: clamp(4.6rem, 16vw, 7rem);
-  line-height: 1.2;
+  font-size: clamp(5.6rem, 18vw, 8.4rem);
+  line-height: 1.22;
 }
 .size-he-lg {
-  font-size: clamp(5.6rem, 20vw, 8.5rem);
-  line-height: 1.15;
+  font-size: clamp(6.6rem, 22vw, 10.2rem);
+  line-height: 1.18;
 }
 
 .hero-watermark {
