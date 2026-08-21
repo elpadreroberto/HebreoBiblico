@@ -14,17 +14,108 @@ import {
   partesDeNivel,
   type Parte,
 } from "@/data/alefato";
+import { buildPath } from "@/data/path";
 import type { FlashItem } from "@/data/types";
+import {
+  applyVowelToHost,
+  detectVowelKind,
+  isVowelItem,
+  pickHost,
+} from "@/lib/hebrew-vowels";
 import { recordScore } from "@/lib/progress";
 import { cn, shuffle } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HebrewVerse, HebrewWord } from "@/components/hebrew-verse";
+import { VocabStudio } from "@/components/vocab-studio";
 
 type Modo = "enseñar" | "examinar";
 type Face = "classic" | "serif" | "bold";
 
-export function AlefatoStudio() {
-  const [nivelId, setNivelId] = useState(1);
+export function AlefatoStudio({ initialPathLevel = 1 }: { initialPathLevel?: number }) {
+  const path = useMemo(() => buildPath(), []);
+  const [pathLevel, setPathLevel] = useState(initialPathLevel);
+  const current = path[Math.min(Math.max(pathLevel, 1), path.length) - 1];
+
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6">
+      <LevelRail path={path} pathLevel={current.id} onChange={setPathLevel} />
+      {current.kind === "vocab" ? (
+        <VocabStudio
+          embedded
+          groupIndex={current.vocabIndex ?? 0}
+          onGroupIndexChange={(i) => setPathLevel(6 + i)}
+        />
+      ) : (
+        <AlefatoBoard
+          nivelId={current.alefatoId ?? 1}
+          onAdvancePath={() => setPathLevel((n) => Math.min(path.length, n + 1))}
+          haySiguienteNivel={current.id < path.length}
+        />
+      )}
+    </div>
+  );
+}
+
+function LevelRail({
+  path,
+  pathLevel,
+  onChange,
+}: {
+  path: ReturnType<typeof buildPath>;
+  pathLevel: number;
+  onChange: (id: number) => void;
+}) {
+  const current = path[pathLevel - 1];
+  return (
+    <header className="rounded-xl bg-surface p-4 shadow-[0_0_0_1px_var(--color-border)] sm:p-5">
+      <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-subtle">
+            Nivel {current.id} de {path.length}
+            {current.kind === "vocab" ? " · vocabulario" : " · alefato"}
+          </p>
+          <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+            {current.title}
+          </h1>
+        </div>
+        <p className="max-w-sm text-sm text-muted sm:text-right">{current.summary}</p>
+      </div>
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Niveles">
+        {path.map((n) => (
+          <button
+            key={n.id}
+            type="button"
+            title={n.title}
+            aria-pressed={n.id === pathLevel}
+            onClick={() => onChange(n.id)}
+            className={cn(
+              "h-10 min-w-10 rounded-md px-2.5 text-sm font-semibold transition-colors duration-150",
+              n.id === pathLevel
+                ? n.kind === "vocab"
+                  ? "bg-teal text-teal-fg"
+                  : "bg-accent text-accent-fg"
+                : n.kind === "vocab"
+                  ? "bg-raised text-teal hover:text-fg"
+                  : "bg-raised text-muted hover:text-fg",
+            )}
+          >
+            {n.id}
+          </button>
+        ))}
+      </div>
+    </header>
+  );
+}
+
+function AlefatoBoard({
+  nivelId,
+  onAdvancePath,
+  haySiguienteNivel,
+}: {
+  nivelId: number;
+  onAdvancePath: () => void;
+  haySiguienteNivel: boolean;
+}) {
   const [parteId, setParteId] = useState("1");
   const [modo, setModo] = useState<Modo>("enseñar");
   const [indice, setIndice] = useState(0);
@@ -36,23 +127,25 @@ export function AlefatoStudio() {
   const [answered, setAnswered] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
   const [opciones, setOpciones] = useState<FlashItem[]>([]);
+  const [host, setHost] = useState(() => pickHost());
   const liveRef = useRef<HTMLDivElement>(null);
 
   const nivel = alefatoNiveles[nivelId - 1];
   const partes = useMemo(() => partesDeNivel(nivel), [nivel]);
   const parte: Parte = partes.find((p) => p.id === parteId) ?? partes[0];
 
-  const cargar = useCallback(
-    (p: Parte, m: Modo) => {
-      const next = m === "enseñar" ? p.items : shuffle(p.items);
-      setItems(next);
-      setIndice(0);
-      setAciertos(0);
-      setAnswered(false);
-      setPicked(null);
-    },
-    [],
-  );
+  const cargar = useCallback((p: Parte, m: Modo) => {
+    const next = m === "enseñar" ? p.items : shuffle(p.items);
+    setItems(next);
+    setIndice(0);
+    setAciertos(0);
+    setAnswered(false);
+    setPicked(null);
+  }, []);
+
+  useEffect(() => {
+    setParteId("1");
+  }, [nivelId]);
 
   useEffect(() => {
     cargar(parte, modo);
@@ -60,6 +153,16 @@ export function AlefatoStudio() {
 
   const item = items[indice];
   const examDone = modo === "examinar" && indice >= items.length && items.length > 0;
+  const vowel = item ? isVowelItem(item) : false;
+  const vowelKind = item && vowel ? detectVowelKind(item) : null;
+  const displayHe =
+    item && vowel && vowelKind ? applyVowelToHost(host.he, vowelKind) : item?.he ?? "";
+
+  useEffect(() => {
+    if (item && isVowelItem(item)) {
+      setHost((prev) => pickHost(prev.he));
+    }
+  }, [item?.id, indice, parte.id, modo]);
 
   useEffect(() => {
     if (modo !== "examinar" || !item || examDone) return;
@@ -111,12 +214,15 @@ export function AlefatoStudio() {
       setParteId(partes[idx - 1].id);
     } else if (dir > 0 && idx < partes.length - 1) {
       setParteId(partes[idx + 1].id);
+    } else if (dir > 0 && haySiguienteNivel) {
+      onAdvancePath();
     }
   }
 
   function siguienteParte() {
     const idx = partes.findIndex((p) => p.id === parte.id);
     if (idx < partes.length - 1) setParteId(partes[idx + 1].id);
+    else if (haySiguienteNivel) onAdvancePath();
   }
 
   function responder(ok: boolean, opt: FlashItem) {
@@ -142,10 +248,11 @@ export function AlefatoStudio() {
   }
 
   const extra = item ? extraInfo(item, nivelId) : null;
+  const hayOtraParte = partes.findIndex((p) => p.id === parte.id) < partes.length - 1;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6">
-      <header className="flex flex-col gap-4 rounded-xl bg-surface p-4 shadow-[0_0_0_1px_var(--color-border)] sm:p-5">
+    <>
+      <div className="flex flex-col gap-4 rounded-xl bg-surface p-4 shadow-[0_0_0_1px_var(--color-border)] sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div role="tablist" aria-label="Modo" className="flex rounded-lg bg-raised p-1">
             {(["enseñar", "examinar"] as const).map((m) => (
@@ -164,30 +271,6 @@ export function AlefatoStudio() {
               </button>
             ))}
           </div>
-          <div className="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Niveles">
-            {alefatoNiveles.map((n) => (
-              <button
-                key={n.id}
-                type="button"
-                aria-pressed={n.id === nivelId}
-                onClick={() => {
-                  setNivelId(n.id);
-                  setParteId("1");
-                }}
-                className={cn(
-                  "h-10 min-w-11 rounded-md px-3 text-sm font-semibold transition-colors duration-150",
-                  n.id === nivelId
-                    ? "bg-accent text-accent-fg"
-                    : "bg-raised text-muted hover:text-fg",
-                )}
-              >
-                {n.id}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <div className="flex gap-1.5">
             <Button
               variant="secondary"
@@ -210,80 +293,77 @@ export function AlefatoStudio() {
               <ZoomIn />
             </Button>
           </div>
-          <div className="flex max-w-full flex-col items-center">
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-subtle">
-              {nivel.titulo} · partes
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {modo === "enseñar" && (
-                <Button
-                  variant="teal"
-                  size="sm"
-                  onClick={() => navegar(-1)}
-                  aria-label="Ficha anterior"
-                >
-                  <ChevronLeft />
-                  <span className="hidden sm:inline">Ant</span>
-                </Button>
-              )}
-              {partes.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  aria-pressed={p.id === parte.id}
-                  onClick={() => setParteId(p.id)}
-                  className={cn(
-                    "h-9 min-w-9 rounded-md px-2.5 text-xs font-bold transition-colors duration-150",
-                    p.id === parte.id
-                      ? p.isGlobal
-                        ? "bg-accent text-accent-fg"
-                        : "bg-teal text-teal-fg"
-                      : p.isGlobal
-                        ? "bg-raised text-accent"
-                        : "bg-raised text-muted hover:text-fg",
-                  )}
-                >
-                  {p.label}
-                </button>
-              ))}
-              {modo === "enseñar" && (
-                <Button
-                  variant="teal"
-                  size="sm"
-                  onClick={() => navegar(1)}
-                  aria-label="Ficha siguiente"
-                >
-                  <span className="hidden sm:inline">Sig</span>
-                  <ChevronRight />
-                </Button>
-              )}
-            </div>
-          </div>
-          <p className="hidden max-w-48 text-right text-xs text-muted sm:block">{nivel.resumen}</p>
         </div>
-      </header>
+
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-subtle">
+            Partes de este nivel
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
+            {modo === "enseñar" && (
+              <Button variant="teal" size="sm" onClick={() => navegar(-1)} aria-label="Ficha anterior">
+                <ChevronLeft />
+                <span className="hidden sm:inline">Ant</span>
+              </Button>
+            )}
+            {partes.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-pressed={p.id === parte.id}
+                onClick={() => setParteId(p.id)}
+                className={cn(
+                  "h-9 min-w-9 rounded-md px-2.5 text-xs font-bold transition-colors duration-150",
+                  p.id === parte.id
+                    ? p.isGlobal
+                      ? "bg-accent text-accent-fg"
+                      : "bg-teal text-teal-fg"
+                    : p.isGlobal
+                      ? "bg-raised text-accent"
+                      : "bg-raised text-muted hover:text-fg",
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+            {modo === "enseñar" && (
+              <Button variant="teal" size="sm" onClick={() => navegar(1)} aria-label="Ficha siguiente">
+                <span className="hidden sm:inline">Sig</span>
+                <ChevronRight />
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.7fr)_minmax(16rem,1fr)]">
         <section aria-label="Ficha" className="flex flex-col gap-4">
-          <div className="flex min-h-[280px] flex-col items-center justify-center rounded-xl bg-surface px-5 py-8 text-center shadow-[0_0_0_1px_var(--color-border)] sm:min-h-[320px]">
+          <div className="flex min-h-[320px] flex-col items-center justify-center rounded-xl bg-surface px-5 py-8 text-center shadow-[0_0_0_1px_var(--color-border)] sm:min-h-[380px]">
             {examDone ? (
               <Resultado
                 aciertos={aciertos}
                 total={items.length}
                 onRepetir={() => cargar(parte, "examinar")}
                 onSiguiente={siguienteParte}
-                haySiguiente={partes.findIndex((p) => p.id === parte.id) < partes.length - 1}
+                haySiguiente={hayOtraParte || haySiguienteNivel}
               />
             ) : item ? (
-              <article key={`${parte.id}-${indice}-${modo}`} className="fade-swap w-full">
+              <article key={`${parte.id}-${indice}-${modo}-${host.he}`} className="fade-swap w-full">
                 <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-subtle">
                   {modo === "enseñar"
                     ? `Ficha ${indice + 1} de ${items.length}`
                     : "¿Qué significa o cómo se lee?"}
                 </p>
-                <HebrewWord size={large ? "lg" : "md"} face={face}>
-                  {item.he}
+                <HebrewWord size={large ? "lg" : "md"} face={face} highlightVowels={vowel}>
+                  {displayHe}
                 </HebrewWord>
+                {vowel && modo === "enseñar" && (
+                  <p className="mt-3 text-sm text-muted">
+                    Vocal en <span className="font-semibold text-vowel">color</span>
+                    {" · "}sobre <span dir="rtl" lang="he" className="font-hebrew">{host.he}</span>{" "}
+                    ({host.name})
+                  </p>
+                )}
                 {modo === "enseñar" && <Detalle item={item} />}
               </article>
             ) : null}
@@ -359,7 +439,7 @@ export function AlefatoStudio() {
       <p className="text-center text-xs text-subtle">
         Teclado: flechas para avanzar · 1–4 para responder en examen
       </p>
-    </div>
+    </>
   );
 }
 
@@ -385,7 +465,7 @@ function Detalle({ item }: { item: FlashItem }) {
       {item.uso && <p className="mt-1 text-sm italic text-muted">{item.uso}</p>}
       {item.cita && (
         <div className="mt-3 border-t border-border pt-3">
-          <HebrewVerse html={item.cita} className="text-2xl" />
+          <HebrewVerse html={item.cita} className="text-3xl" />
           {item.citaTr && <p className="mt-2 text-sm italic text-accent">{item.citaTr}</p>}
           {item.citaEs && <p className="text-sm text-muted">{item.citaEs}</p>}
         </div>
@@ -440,7 +520,7 @@ function Resultado({
         </Button>
         {haySiguiente && (
           <Button onClick={onSiguiente}>
-            Siguiente parte
+            Siguiente
             <ChevronRight />
           </Button>
         )}
