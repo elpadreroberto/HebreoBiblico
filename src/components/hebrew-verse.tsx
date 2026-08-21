@@ -1,19 +1,22 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { splitColoredHebrew } from "@/lib/hebrew-vowels";
 
 export function HebrewWord({
   children,
   className,
   size = "md",
   face = "classic",
+  highlightVowels = false,
 }: {
   children: ReactNode;
   className?: string;
   size?: "md" | "lg";
   face?: "classic" | "serif" | "bold";
+  highlightVowels?: boolean;
 }) {
   const raw = typeof children === "string" ? children : "";
-  const compact = [...raw].length <= 4;
+  const compact = [...raw].length <= 6;
   return (
     <span
       dir="rtl"
@@ -26,8 +29,20 @@ export function HebrewWord({
         className,
       )}
     >
-      {children}
+      {highlightVowels && raw ? <NiqqudColor text={raw} /> : children}
     </span>
+  );
+}
+
+export function NiqqudColor({ text }: { text: string }) {
+  return (
+    <>
+      {splitColoredHebrew(text).map((part, i) => (
+        <span key={`${part.ch}-${i}`} className={part.vowel ? "niqqud-vowel" : "he-consonant"}>
+          {part.ch}
+        </span>
+      ))}
+    </>
   );
 }
 
