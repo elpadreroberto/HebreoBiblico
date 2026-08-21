@@ -8,9 +8,25 @@ import { Button } from "@/components/ui/button";
 
 type QuizItem = VocabCard | (Phrase & { t?: string; v?: string; hv?: string; c?: string });
 
-export function VocabStudio() {
-  const [idx, setIdx] = useState(0);
-  const [order, setOrder] = useState<VocabCard[]>(() => vocabGroups[0].cards);
+export function VocabStudio({
+  embedded = false,
+  groupIndex,
+  onGroupIndexChange,
+}: {
+  embedded?: boolean;
+  groupIndex?: number;
+  onGroupIndexChange?: (index: number) => void;
+}) {
+  const [localIdx, setLocalIdx] = useState(groupIndex ?? 0);
+  const idx = groupIndex ?? localIdx;
+
+  function setIdx(n: number) {
+    const next = Math.max(0, Math.min(vocabGroups.length - 1, n));
+    if (onGroupIndexChange) onGroupIndexChange(next);
+    else setLocalIdx(next);
+  }
+
+  const [order, setOrder] = useState<VocabCard[]>(() => vocabGroups[idx].cards);
   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
   const [examOpen, setExamOpen] = useState(false);
 
@@ -27,26 +43,23 @@ export function VocabStudio() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
-      <header className="flex flex-col items-center gap-3 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-subtle">
-          Grupo {group.id} de {vocabGroups.length}
-        </p>
-        <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-          {group.name}
-        </h1>
-        <p className="rounded-full bg-raised px-3 py-1 text-sm font-semibold tabular-nums text-accent shadow-[0_0_0_1px_var(--color-border)]">
-          {group.percent.toFixed(1)}% del texto bíblico
-        </p>
-      </header>
+    <div className={cn("flex w-full flex-col gap-6", !embedded && "mx-auto max-w-6xl px-4 py-6 sm:px-6")}>
+      {!embedded && (
+        <header className="flex flex-col items-center gap-3 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-subtle">
+            Grupo {group.id} de {vocabGroups.length}
+          </p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            {group.name}
+          </h1>
+          <p className="rounded-full bg-raised px-3 py-1 text-sm font-semibold tabular-nums text-accent shadow-[0_0_0_1px_var(--color-border)]">
+            {group.percent.toFixed(1)}% del texto bíblico
+          </p>
+        </header>
+      )}
 
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <Button
-          variant="secondary"
-          onClick={() => setIdx((i) => Math.max(0, i - 1))}
-          disabled={idx === 0}
-          aria-label="Grupo anterior"
-        >
+        <Button variant="secondary" onClick={() => setIdx(idx - 1)} disabled={idx === 0} aria-label="Grupo anterior">
           <ChevronLeft />
           Anterior
         </Button>
@@ -59,7 +72,7 @@ export function VocabStudio() {
         </Button>
         <Button
           variant="secondary"
-          onClick={() => setIdx((i) => Math.min(vocabGroups.length - 1, i + 1))}
+          onClick={() => setIdx(idx + 1)}
           disabled={idx === vocabGroups.length - 1}
           aria-label="Grupo siguiente"
         >
@@ -68,27 +81,29 @@ export function VocabStudio() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Grupos">
-        {vocabGroups.map((g, i) => (
-          <button
-            key={g.id}
-            type="button"
-            aria-pressed={i === idx}
-            onClick={() => setIdx(i)}
-            className={cn(
-              "h-9 min-w-9 rounded-md px-2 text-xs font-bold tabular-nums transition-colors duration-150",
-              i === idx ? "bg-accent text-accent-fg" : "bg-raised text-muted hover:text-fg",
-            )}
-            title={g.name}
-          >
-            {g.id}
-          </button>
-        ))}
-      </div>
+      {!embedded && (
+        <div className="flex flex-wrap justify-center gap-1.5" role="group" aria-label="Grupos">
+          {vocabGroups.map((g, i) => (
+            <button
+              key={g.id}
+              type="button"
+              aria-pressed={i === idx}
+              onClick={() => setIdx(i)}
+              className={cn(
+                "h-9 min-w-9 rounded-md px-2 text-xs font-bold tabular-nums transition-colors duration-150",
+                i === idx ? "bg-accent text-accent-fg" : "bg-raised text-muted hover:text-fg",
+              )}
+              title={g.name}
+            >
+              {g.id}
+            </button>
+          ))}
+        </div>
+      )}
 
       <ul className="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
         {order.map((card, i) => (
-          <li key={`${card.h}-${i}`} className="h-[340px] min-w-0">
+          <li key={`${card.h}-${i}`} className="h-[360px] min-w-0">
             <FlipCard
               card={card}
               flipped={!!flipped[i]}
@@ -98,12 +113,7 @@ export function VocabStudio() {
         ))}
       </ul>
 
-      {examOpen && (
-        <ExamOverlay
-          groupIdx={idx}
-          onClose={() => setExamOpen(false)}
-        />
-      )}
+      {examOpen && <ExamOverlay groupIdx={idx} onClose={() => setExamOpen(false)} />}
     </div>
   );
 }
@@ -132,13 +142,13 @@ function FlipCard({
       <div className="flip-inner">
         <div className="flip-face rounded-xl bg-surface shadow-[0_0_0_1px_var(--color-border)]">
           <div className="flex h-full min-w-0 flex-col items-center justify-center overflow-hidden px-5 py-6 text-center">
-            <span dir="rtl" lang="he" className="font-hebrew text-6xl leading-none whitespace-nowrap text-accent">
+            <span dir="rtl" lang="he" className="font-hebrew text-7xl leading-none whitespace-nowrap text-accent sm:text-8xl">
               {card.h}
             </span>
             <span
               dir="rtl"
               lang="he"
-              className="mt-4 line-clamp-3 w-full max-w-[18rem] font-hebrew text-sm leading-snug break-words text-muted"
+              className="mt-4 line-clamp-3 w-full max-w-[18rem] font-hebrew text-base leading-snug break-words text-muted"
             >
               {card.hv}
             </span>
@@ -242,9 +252,7 @@ function ExamOverlay({
   }
 
   function startConversation() {
-    const available = shuffle(
-      conversationPhrases.filter((p) => p.level <= groupIdx),
-    ).slice(0, 10);
+    const available = shuffle(conversationPhrases.filter((p) => p.level <= groupIdx)).slice(0, 10);
     setQueue(available);
     setPos(0);
     setScore(0);
@@ -289,7 +297,7 @@ function ExamOverlay({
             <p
               dir="rtl"
               lang="he"
-              className="my-6 text-center font-hebrew text-5xl leading-tight text-accent sm:text-6xl"
+              className="my-6 text-center font-hebrew text-6xl leading-tight text-accent sm:text-7xl"
             >
               {"h" in current ? current.h : ""}
             </p>
@@ -339,9 +347,8 @@ function ExamOverlay({
                 </>
               ) : (
                 <>
-                  Acertaste el <strong className="text-fg">{pct}%</strong> de este grupo.
-                  Ahora cubres aproximadamente{" "}
-                  <strong className="text-teal">{dominated}%</strong> del texto bíblico
+                  Acertaste el <strong className="text-fg">{pct}%</strong> de este grupo. Ahora cubres
+                  aproximadamente <strong className="text-teal">{dominated}%</strong> del texto bíblico
                   (sobre el {vocabGroups[groupIdx].percent}% de este nivel).
                 </>
               )}
