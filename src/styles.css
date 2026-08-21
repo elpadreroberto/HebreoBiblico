@@ -13,14 +13,14 @@
   --color-fg: #ece8e1;
   --color-muted: #9a948a;
   --color-subtle: #6f6a62;
-  --color-accent: #c5b8a0;
+  --color-accent: #d4c4a0;
   --color-accent-fg: #0b0e14;
   --color-teal: #5a9e93;
   --color-teal-fg: #071311;
   --color-danger: #c45c5c;
   --color-ok: #6fb07a;
-  --color-border: rgb(236 232 225 / 0.1);
-  --color-ring: #c5b8a0;
+  --color-border: rgb(236 232 225 / 0.12);
+  --color-ring: #d4c4a0;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
@@ -39,7 +39,10 @@
   body {
     min-height: 100dvh;
     background-color: var(--color-bg);
-    background-image: linear-gradient(180deg, #10141c 0%, #0b0e14 42%);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(212 196 160 / 0.14), transparent 55%),
+      radial-gradient(ellipse 40% 30% at 90% 20%, rgb(90 158 147 / 0.08), transparent 50%),
+      linear-gradient(180deg, #12161f 0%, #0b0e14 48%);
     color: var(--color-fg);
     font-family: var(--font-sans);
   }
@@ -94,6 +97,20 @@
 .size-he-lg {
   font-size: clamp(5.6rem, 20vw, 8.5rem);
   line-height: 1.15;
+}
+
+.hero-watermark {
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.hero-watermark span {
+  position: absolute;
+  font-family: var(--font-hebrew);
+  color: rgb(212 196 160 / 0.06);
+  line-height: 1;
 }
 
 .flip-card {

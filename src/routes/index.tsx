@@ -16,8 +16,15 @@ function Home() {
     <AppShell current="home">
       <main>
         <section className="relative overflow-hidden">
-          <div className="mx-auto flex max-w-4xl flex-col items-center px-4 py-16 text-center sm:px-6 sm:py-24">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-subtle">
+          <div className="hero-watermark" aria-hidden="true">
+            <span className="top-6 right-[8%] text-[9rem] sm:text-[14rem]">א</span>
+            <span className="bottom-0 left-[6%] text-[8rem] sm:text-[12rem]">ת</span>
+          </div>
+          <div className="relative mx-auto flex max-w-4xl flex-col items-center px-4 py-16 text-center sm:px-6 sm:py-24">
+            <p className="inline-flex items-center rounded-full border border-border bg-raised/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
+              Acceso libre · sin registro
+            </p>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-subtle">
               Lectura del Tanaj en su lengua
             </p>
             <h1
@@ -32,7 +39,7 @@ function Home() {
             </p>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
               Dos talleres en una sola página: el alefato con gramática, y el vocabulario
-              de alta frecuencia que cubre casi todo el texto sagrado.
+              de alta frecuencia que cubre casi todo el texto sagrado. Abierto para cualquiera.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg">
@@ -82,10 +89,19 @@ function Home() {
             <Step
               icon={<Keyboard className="size-5" />}
               title="Hecho para leerse"
-              body="Tipografías hebreas, contraste alto, rumbo RTL y atajos. El progreso del examen se guarda en este dispositivo."
+              body="Tipografías hebreas, contraste alto, rumbo RTL y atajos. El progreso se guarda en este dispositivo, sin cuenta."
             />
           </div>
         </section>
+
+        <footer className="border-t border-border">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-center text-sm text-subtle sm:px-6">
+            <p>Página pública: cualquiera puede usarla desde ahora.</p>
+            <p dir="rtl" lang="he" className="font-hebrew text-accent">
+              בְּרֵאשִׁית בָּרָא אֱלֹהִים
+            </p>
+          </div>
+        </footer>
       </main>
     </AppShell>
   );
@@ -109,7 +125,7 @@ function StudioCard({
   return (
     <Link
       to={to}
-      className="group flex flex-col rounded-xl bg-surface p-6 no-underline shadow-[0_0_0_1px_var(--color-border)] transition-[box-shadow,transform] duration-200 ease-out hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-accent)_45%,transparent)] sm:p-8"
+      className="group flex flex-col rounded-xl bg-surface/90 p-6 no-underline shadow-[0_0_0_1px_var(--color-border)] transition-[box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgb(0_0_0_/_0.28),0_0_0_1px_color-mix(in_oklab,var(--color-accent)_50%,transparent)] sm:p-8"
     >
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-subtle">{kicker}</p>
